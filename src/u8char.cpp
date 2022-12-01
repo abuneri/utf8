@@ -14,7 +14,8 @@ bool is_extended_ascii(const char c)
 bool is_sequence(const char c)
 {
     // https://www.rfc-editor.org/rfc/rfc3629#section-3
-    // Does the char contain '10' in the high bits, if yes it is the 2nd-4th octet sequence for a utf-8 character
+    // Does the char contain '10' in the high bits, if yes it is
+    // the 2nd-4th octet sequence for a utf-8 character
     return ((c & SeqChar) == SeqChar);
 }
 
@@ -23,7 +24,10 @@ std::size_t num_octets(const char c)
     // https://www.rfc-editor.org/rfc/rfc3629#section-3
     if ((c & TwoOctetChar) != TwoOctetChar)
     {
-        // If the character is 7-bit ASCII we only needs a single octet representation; however, if the character is Extended ASCII (Latin-1 or Windows-1252), this is not valid utf8, so we have 0 octets.
+        // If the character is 7-bit ASCII we only needs a
+        // single octet representation; however, if the character is
+        // Extended ASCII (Latin-1 or Windows-1252), this is not valid utf8,
+        // so we have 0 octets.
         return is_extended_ascii(c) ? 0 : 1;
     }
 
@@ -40,6 +44,7 @@ std::size_t num_octets(const char c)
         return 2;
     }
 }
+
 } // namespace detail
 
 u8char::u8char(const char byte)
@@ -57,7 +62,8 @@ u8char::u8char(const char* bytes, const std::size_t length)
         bool valid = (num_octets > 0 && num_octets <= 4);
         storage_.push_back(initial_byte);
 
-        // Ensure each char contains '10' high bits. If at least one doesn't, we don't have valid a UTF-8 character
+        // Ensure each char contains '10' high bits. If at least one doesn't,
+        // we don't have valid a UTF-8 character
         for (std::size_t idx = 1; idx < length; ++idx)
         {
             const char seq_byte = bytes[idx];
