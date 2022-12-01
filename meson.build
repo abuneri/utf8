@@ -1,22 +1,29 @@
 project('utf8', 'cpp', version: '0.1.0', default_options : 'cpp_std=c++17')
 
-srcs = ['src/u8char.cpp', 'src/u8text.cpp']
+lib_srcs = ['src/u8char.cpp', 'src/u8text.cpp']
 lib = static_library(
     'libaucutf8',
      include_directories: 'include',
-     sources: srcs
+     sources: lib_srcs
 )
 
-utest = executable(
-    'utf8-test',
+gtest_proj = subproject('gtest')
+gtest_dep = gtest_proj.get_variable('gtest_dep')
+
+test_srcs = ['test/main.cpp', 'test/encoding_validity.cpp']
+test = executable(
+    'libaucutf8-test',
     include_directories: 'include',
-    sources:'test/main.cpp',
+    sources: test_srcs,
+    dependencies: [
+        gtest_dep
+    ],
     link_with: [
         lib
     ]
 )
 
 test(
-    'utf8 unit tests',
-    utest
+    'libaucutf8 unit tests',
+    test
 ) 
