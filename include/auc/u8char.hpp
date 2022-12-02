@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "codepoint.hpp"
 
@@ -43,8 +43,6 @@ class u8char {
 
   // TODO: add std::string ctor
 
-  // TODO: expose. implemented via detail::to_encoded_bytes and determining the
-  // validity
   static u8char from_codepoint(codepoint cp);
 
   bool is_valid() const;
@@ -53,8 +51,10 @@ class u8char {
 
   std::size_t get_num_bytes() const { return encoded_storage_.size(); }
 
-  std::string data() const { return std::string(encoded_storage_.data(), encoded_storage_.size()); }
-  
+  std::string data() const {
+    return std::string(encoded_storage_.data(), encoded_storage_.size());
+  }
+
  private:
   explicit u8char(const std::vector<char>& encoded_bytes,
                   const bool valid_encoding);
