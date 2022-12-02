@@ -33,9 +33,6 @@ class u8char {
 
   bool is_valid() const;
 
-  // TODO: generate an object auc::code_point that represents the code point of
-  // the utf8 char
-
  private:
   bool valid_encoding_{false};
   std::vector<char> encoded_storage_;
