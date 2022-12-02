@@ -12,6 +12,8 @@ class u8text {
   // Expects non null terminated data
   explicit u8text(const char* bytes, const std::size_t length);
 
+  // TODO: add std::string ctor
+
   bool is_valid() const;
 
   // TODO: All implementation details for the util/helper methods

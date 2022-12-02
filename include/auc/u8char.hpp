@@ -1,5 +1,7 @@
 #pragma once
 
+#include "codepoint.hpp"
+
 #include <vector>
 
 namespace auc {
@@ -18,6 +20,9 @@ bool is_sequence(const char c);
 
 std::size_t num_octets(const char c);
 
+std::uint32_t to_codepoint(const std::size_t num_octets,
+                           const std::vector<char>& encoded_bytes);
+
 }  // namespace detail
 
 class u8char {
@@ -33,10 +38,8 @@ class u8char {
 
  private:
   bool valid_encoding_{false};
-  // TODO: this is the encoded storage, rename/clarify that
-  std::vector<char> storage_;
-
-  // TODO: store the decoded character data (i.e. a unicode code point)
+  std::vector<char> encoded_storage_;
+  codepoint codepoint_{0};
 };
 
 }  // namespace auc

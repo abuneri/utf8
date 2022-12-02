@@ -1,4 +1,5 @@
 #include <auc/u8char.hpp>
+#include <cassert>
 #include <climits>
 
 namespace auc {
@@ -32,11 +33,108 @@ std::size_t num_octets(const char c) {
   }
 }
 
+std::uint32_t to_codepoint(const std::size_t num_octets,
+                           const std::vector<char>& encoded_bytes) {
+  assert(num_octets == encoded_bytes.size());
+
+  std::uint32_t codepoint{0};
+
+  auto decode_bit = [&encoded_bytes, &codepoint](const std::size_t enc_byte_idx,
+                                                 const std::size_t enc_bit,
+                                                 const std::size_t cp_bit) {
+    if ((encoded_bytes[enc_byte_idx] >> enc_bit) & 1) {
+      codepoint |= 1 << cp_bit;
+    } else {
+      codepoint &= ~(1 << cp_bit);
+    }
+  };
+
+  auto decode_bits = [&decode_bit](const std::size_t enc_byte_idx,
+                                   const std::size_t high_enc_bit,
+                                   const std::size_t low_enc_bit,
+                                   const std::size_t high_cp_bit,
+                                   const std::size_t low_cp_bit) {
+    std::size_t enc_bit = high_enc_bit;
+    std::size_t cp_bit = high_cp_bit;
+    for (; enc_bit >= low_enc_bit && cp_bit >= low_cp_bit;
+         --enc_bit, --cp_bit) {
+      decode_bit(enc_byte_idx, enc_bit, cp_bit);
+
+      if (enc_bit == 0 || cp_bit == 0) break;
+    }
+  };
+
+  /*
+   https://www.rfc-editor.org/rfc/rfc3629#section-3
+   1 Octect: 0xxxxxxx
+   2 Octets: 110xxxxx 10xxxxxx
+   3 Octets: 1110xxxx 10xxxxxx 10xxxxxx
+   4 Octets: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+  */
+  switch (num_octets) {
+    case 4:
+      // First 21 bits of the 32-bit integer need to be filled
+
+      // The 3 LSB (2-0) from encoded_bytes index 0 fill the (20-18) bits in the
+      // integer
+      decode_bits(0, 2, 0, 20, 18);
+
+      // The 6 LSB (5-0) from encoded_bytes index 1 fill the (17-12)
+      // bits in the integer
+      decode_bits(1, 5, 0, 17, 12);
+
+      // The 6 LSB (5-0) from encoded_bytes index 2 fill the
+      // (11-6) bits in the integer
+      decode_bits(2, 5, 0, 11, 6);
+
+      // The 6 LSB (5-0) from encoded_bytes index 3
+      // fill the (5-0) bits in the integer
+      decode_bits(3, 5, 0, 5, 0);
+      break;
+    case 3:
+      // First 16 bits of the 32-bit integer need to be filled
+
+      // The 4 LSB (3-0) from encoded_bytes index 0 fill the (15-12) bits in the
+      // integer
+      decode_bits(0, 3, 0, 15, 12);
+
+      // the 6 LSB (5-0) from encoded_bytes index 1 fill the (11-6) bits
+      // in the integer
+      decode_bits(1, 5, 0, 11, 6);
+
+      // The 6 LSB (5-0) from encoded_bytes index 2 fill the
+      // (5-0) bits in the integer
+      decode_bits(2, 5, 0, 5, 0);
+      break;
+    case 2:
+      // First 11 bits of the 32-bit integer need to be filled
+
+      // The 5 LSB (4-0) from encoded_bytes index 0 fill the (10-6) bits in the
+      // integer
+      decode_bits(0, 4, 0, 10, 6);
+
+      // The 6 LSB (5-0) from encoded_bytes index 1 fill the (5-0) bits
+      // in the integer
+      decode_bits(1, 5, 0, 5, 0);
+      break;
+    case 1:
+    case 0:
+      // Can directly convert byte value into codepoint integer
+      codepoint = static_cast<std::uint32_t>(encoded_bytes[0]);
+    default:
+      break;
+  }
+  return codepoint;
+}
+
 }  // namespace detail
 
 u8char::u8char(const char byte) {
   valid_encoding_ = !detail::is_extended_ascii(byte);
-  storage_.push_back(byte);
+  encoded_storage_.push_back(byte);
+
+  // TODO: Is this safe? dd unit tests for when extended and 7bit ascii
+  codepoint_ = static_cast<std::uint32_t>(byte);
 }
 
 u8char::u8char(const char* bytes, const std::size_t length) {
@@ -46,17 +144,18 @@ u8char::u8char(const char* bytes, const std::size_t length) {
     const char initial_byte = bytes[0];
     const std::size_t num_octets = detail::num_octets(initial_byte);
     bool valid = (num_octets > 0 && num_octets <= 4);
-    storage_.push_back(initial_byte);
+    encoded_storage_.push_back(initial_byte);
 
     // Ensure each char contains '10' high bits. If at least one doesn't,
     // we don't have valid a UTF-8 character
     for (std::size_t idx = 1; idx < length; ++idx) {
       const char seq_byte = bytes[idx];
       valid &= detail::is_sequence(seq_byte);
-      storage_.push_back(seq_byte);
+      encoded_storage_.push_back(seq_byte);
     }
 
     valid_encoding_ = valid;
+    codepoint_ = detail::to_codepoint(num_octets, encoded_storage_);
   }
 }
 
