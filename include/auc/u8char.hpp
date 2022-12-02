@@ -31,6 +31,8 @@ class u8char {
 
   explicit u8char(const char* bytes, const std::size_t length);
 
+  // TODO: add std::string ctor
+
   bool is_valid() const;
 
  private:
