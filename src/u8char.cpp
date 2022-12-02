@@ -32,14 +32,6 @@ std::size_t num_octets(const char c) {
   }
 }
 
-struct decode_params {
-  std::size_t enc_byte_idx_{0};
-  std::size_t high_enc_bit_{0};
-  std::size_t low_enc_bit_{0};
-  std::size_t high_cp_bit_{0};
-  std::size_t low_cp_bit_{0};
-};
-
 std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes) {
   std::uint32_t codepoint{0};
 
@@ -69,8 +61,20 @@ std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes) {
     }
   };
 
-  // TODO: clean up  successive calls to decode_bits by creating a vector of
-  // decode_params which we can then iterate over and only call decode_bits once
+  struct decode_params {
+    std::size_t enc_byte_idx_{0};
+    std::size_t high_enc_bit_{0};
+    std::size_t low_enc_bit_{0};
+    std::size_t high_cp_bit_{0};
+    std::size_t low_cp_bit_{0};
+  };
+
+  auto decode = [&decode_bits](const std::vector<decode_params>& params) {
+    for (const auto& param : params) {
+      decode_bits(param.enc_byte_idx_, param.high_enc_bit_, param.low_enc_bit_,
+                  param.high_cp_bit_, param.low_cp_bit_);
+    }
+  };
 
   const std::size_t num_octets = encoded_bytes.size();
   switch (num_octets) {
@@ -95,10 +99,7 @@ std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes) {
       // fill the (5-0) bits in the integer
       params.push_back(decode_params{3u, 5u, 0u, 5u, 0u});
 
-      for (const auto& param : params) {
-        decode_bits(param.enc_byte_idx_, param.high_enc_bit_,
-                    param.low_enc_bit_, param.high_cp_bit_, param.low_cp_bit_);
-      }
+      decode(params);
       break;
     }
     case 3u: {
@@ -118,10 +119,7 @@ std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes) {
       // (5-0) bits in the integer
       params.push_back(decode_params{2u, 5u, 0u, 5u, 0u});
 
-      for (const auto& param : params) {
-        decode_bits(param.enc_byte_idx_, param.high_enc_bit_,
-                    param.low_enc_bit_, param.high_cp_bit_, param.low_cp_bit_);
-      }
+      decode(params);
       break;
     }
     case 2u: {
@@ -137,10 +135,7 @@ std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes) {
       // in the integer
       params.push_back(decode_params{1u, 5u, 0u, 5u, 0u});
 
-      for (const auto& param : params) {
-        decode_bits(param.enc_byte_idx_, param.high_enc_bit_,
-                    param.low_enc_bit_, param.high_cp_bit_, param.low_cp_bit_);
-      }
+      decode(params);
       break;
     }
     case 1u:
@@ -152,14 +147,6 @@ std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes) {
   }
   return codepoint;
 }
-
-struct encode_params {
-  char octet_{0};
-  std::size_t low_cp_bit_{0};
-  std::size_t high_cp_bit_{0};
-  std::size_t low_enc_bit_{0};
-  std::size_t high_enc_bit_{0};
-};
 
 std::vector<char> to_encoded_bytes(std::uint32_t codepoint) {
   /*
@@ -185,9 +172,8 @@ std::vector<char> to_encoded_bytes(std::uint32_t codepoint) {
    */
 
   std::vector<char> encoded_bytes;
-  auto encode_bit = [&encoded_bytes, &codepoint](char& octet,
-                                                 const std::size_t enc_bit,
-                                                 const std::size_t cp_bit) {
+  auto encode_bit = [&codepoint](char& octet, const std::size_t enc_bit,
+                                 const std::size_t cp_bit) {
     if ((codepoint >> cp_bit) & 1u) {
       octet |= 1 << enc_bit;
     } else {
@@ -213,6 +199,25 @@ std::vector<char> to_encoded_bytes(std::uint32_t codepoint) {
     return octet;
   };
 
+  struct encode_params {
+    char octet_{0};
+    std::size_t low_cp_bit_{0};
+    std::size_t high_cp_bit_{0};
+    std::size_t low_enc_bit_{0};
+    std::size_t high_enc_bit_{0};
+  };
+
+  auto encode = [&encode_bits,
+                 &encoded_bytes](const std::vector<encode_params>& params) {
+    encoded_bytes.reserve(params.size());
+    for (auto itr = params.rbegin(); itr != params.rend(); ++itr) {
+      auto& param = *itr;
+      encoded_bytes.push_back(
+          encode_bits(param.octet_, param.low_cp_bit_, param.high_cp_bit_,
+                      param.low_enc_bit_, param.high_enc_bit_));
+    }
+  };
+
   if (codepoint >= 0x00u && codepoint <= 0x7Fu) {
     encoded_bytes.reserve(1u);
 
@@ -233,13 +238,7 @@ std::vector<char> to_encoded_bytes(std::uint32_t codepoint) {
     char first_octet = detail::TwoOctetChar;
     params.push_back(encode_params{first_octet, 6u, 10u, 0u, 4u});
 
-    encoded_bytes.reserve(2u);
-    for (auto itr = params.rbegin(); itr != params.rend(); ++itr) {
-      auto& param = *itr;
-      encoded_bytes.push_back(
-          encode_bits(param.octet_, param.low_cp_bit_, param.high_cp_bit_,
-                      param.low_enc_bit_, param.high_enc_bit_));
-    }
+    encode(params);
 
   } else if (codepoint >= 0x800u && codepoint <= 0xFFFFu) {
     std::vector<encode_params> params;
@@ -260,13 +259,7 @@ std::vector<char> to_encoded_bytes(std::uint32_t codepoint) {
     char first_octet = detail::ThreeOctetChar;
     params.push_back(encode_params{first_octet, 12u, 15u, 0u, 3u});
 
-    encoded_bytes.reserve(3u);
-    for (auto itr = params.rbegin(); itr != params.rend(); ++itr) {
-      auto& param = *itr;
-      encoded_bytes.push_back(
-          encode_bits(param.octet_, param.low_cp_bit_, param.high_cp_bit_,
-                      param.low_enc_bit_, param.high_enc_bit_));
-    }
+    encode(params);
 
   } else if (codepoint >= 0x10000u && codepoint <= 0x10FFFFu) {
     std::vector<encode_params> params;
@@ -292,13 +285,7 @@ std::vector<char> to_encoded_bytes(std::uint32_t codepoint) {
     char first_octet = detail::FourOctetChar;
     params.push_back(encode_params{first_octet, 18u, 20u, 0u, 2u});
 
-    encoded_bytes.reserve(4u);
-    for (auto itr = params.rbegin(); itr != params.rend(); ++itr) {
-      auto& param = *itr;
-      encoded_bytes.push_back(
-          encode_bits(param.octet_, param.low_cp_bit_, param.high_cp_bit_,
-                      param.low_enc_bit_, param.high_enc_bit_));
-    }
+    encode(params);
   }
 
   return encoded_bytes;
