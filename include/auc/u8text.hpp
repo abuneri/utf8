@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "u8char.hpp"
 
 namespace auc {
@@ -12,22 +14,19 @@ class u8text {
   // Expects non null terminated data
   explicit u8text(const char* bytes, const std::size_t length);
 
+  static u8text from_codepoints(const std::vector<codepoint>& cps);
+
   // TODO: add std::string ctor
 
   bool is_valid() const;
 
   const std::vector<u8char>& get_chars() const { return chars_; }
 
+  std::string data() const;
+
   // TODO: All implementation details for the util/helper methods
   //  (e.g. length, find/contains,sort) on the class will
   //  be implemented via the list of u8char's
-
-  // TODO: Retrieving the raw char* data from a auc::u8test will be in the form
-  // of a
-  //  std::unique_ptr<char[]> so ownership is clear. The data will be built up
-  //  by iterating through each auc::u8char and memcopying their storage into
-  //  their
-  //   respective position in the outgoing char*
 
   // TODO: Depend on libfmt and add support for printing and formatting
   // auc::u8text.
@@ -35,6 +34,8 @@ class u8text {
   //  and printer if the user has the libfmt dependency
 
  private:
+  explicit u8text(const std::vector<u8char> chars);
+
   void parse_chars(const char* bytes, const std::size_t length);
 
   std::vector<u8char> chars_;

@@ -12,12 +12,35 @@ u8text::u8text(const char* bytes, const std::size_t length) {
   parse_chars(bytes, length);
 }
 
+u8text::u8text(const std::vector<u8char> chars) : chars_(chars) {}
+
+u8text u8text::from_codepoints(const std::vector<codepoint>& cps) {
+  std::vector<u8char> chars;
+  chars.reserve(cps.size());
+
+  for (const auto& cp : cps) {
+    chars.push_back(u8char::from_codepoint(cp));
+  }
+
+  return u8text(chars);
+}
+
 bool u8text::is_valid() const {
   bool valid = true;
   for (const auto& c : chars_) {
     valid &= c.is_valid();
   }
   return valid;
+}
+
+std::string u8text::data() const {
+  std::string raw_data;
+
+  for (const auto& c : chars_) {
+    raw_data.append(c.data());
+  }
+
+  return raw_data;
 }
 
 void u8text::parse_chars(const char* bytes, const std::size_t length) {

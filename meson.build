@@ -19,7 +19,8 @@ gtest_dep = gtest_proj.get_variable('gtest_dep')
 test_srcs = [
     'test/main.cpp',
     'test/encoding_validity.cpp',
-    'test/decoding_codepoint.cpp'
+    'test/decoding_codepoint.cpp',
+    'test/encoding_codepoint.cpp'
 ]
 test = executable(
     'libaucutf8-test',
