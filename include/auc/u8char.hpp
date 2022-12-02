@@ -35,6 +35,8 @@ class u8char {
 
   bool is_valid() const;
 
+  codepoint get_codepoint() const { return codepoint_; }
+
  private:
   bool valid_encoding_{false};
   std::vector<char> encoded_storage_;

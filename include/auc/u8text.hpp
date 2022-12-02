@@ -16,6 +16,8 @@ class u8text {
 
   bool is_valid() const;
 
+  const std::vector<u8char>& get_chars() const { return chars_; }
+
   // TODO: All implementation details for the util/helper methods
   //  (e.g. length, find/contains,sort) on the class will
   //  be implemented via the list of u8char's
