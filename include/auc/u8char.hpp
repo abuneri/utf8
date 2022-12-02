@@ -20,8 +20,7 @@ bool is_sequence(const char c);
 
 std::size_t num_octets(const char c);
 
-std::uint32_t to_codepoint(const std::size_t num_octets,
-                           const std::vector<char>& encoded_bytes);
+std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes);
 
 }  // namespace detail
 

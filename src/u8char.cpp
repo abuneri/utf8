@@ -33,19 +33,16 @@ std::size_t num_octets(const char c) {
   }
 }
 
-std::uint32_t to_codepoint(const std::size_t num_octets,
-                           const std::vector<char>& encoded_bytes) {
-  assert(num_octets == encoded_bytes.size());
-
+std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes) {
   std::uint32_t codepoint{0};
 
   auto decode_bit = [&encoded_bytes, &codepoint](const std::size_t enc_byte_idx,
                                                  const std::size_t enc_bit,
                                                  const std::size_t cp_bit) {
-    if ((encoded_bytes[enc_byte_idx] >> enc_bit) & 1) {
-      codepoint |= 1 << cp_bit;
+    if ((encoded_bytes[enc_byte_idx] >> enc_bit) & 1u) {
+      codepoint |= 1u << cp_bit;
     } else {
-      codepoint &= ~(1 << cp_bit);
+      codepoint &= ~(1u << cp_bit);
     }
   };
 
@@ -60,7 +57,7 @@ std::uint32_t to_codepoint(const std::size_t num_octets,
          --enc_bit, --cp_bit) {
       decode_bit(enc_byte_idx, enc_bit, cp_bit);
 
-      if (enc_bit == 0 || cp_bit == 0) break;
+      if (enc_bit == 0u || cp_bit == 0u) break;
     }
   };
 
@@ -71,8 +68,8 @@ std::uint32_t to_codepoint(const std::size_t num_octets,
    3 Octets: 1110xxxx 10xxxxxx 10xxxxxx
    4 Octets: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
   */
-  switch (num_octets) {
-    case 4:
+  switch (encoded_bytes.size()) {
+    case 4u:
       // First 21 bits of the 32-bit integer need to be filled
 
       // The 3 LSB (2-0) from encoded_bytes index 0 fill the (20-18) bits in the
@@ -91,7 +88,7 @@ std::uint32_t to_codepoint(const std::size_t num_octets,
       // fill the (5-0) bits in the integer
       decode_bits(3, 5, 0, 5, 0);
       break;
-    case 3:
+    case 3u:
       // First 16 bits of the 32-bit integer need to be filled
 
       // The 4 LSB (3-0) from encoded_bytes index 0 fill the (15-12) bits in the
@@ -106,7 +103,7 @@ std::uint32_t to_codepoint(const std::size_t num_octets,
       // (5-0) bits in the integer
       decode_bits(2, 5, 0, 5, 0);
       break;
-    case 2:
+    case 2u:
       // First 11 bits of the 32-bit integer need to be filled
 
       // The 5 LSB (4-0) from encoded_bytes index 0 fill the (10-6) bits in the
@@ -117,10 +114,10 @@ std::uint32_t to_codepoint(const std::size_t num_octets,
       // in the integer
       decode_bits(1, 5, 0, 5, 0);
       break;
-    case 1:
-    case 0:
+    case 1u:
       // Can directly convert byte value into codepoint integer
       codepoint = static_cast<std::uint32_t>(encoded_bytes[0]);
+    case 0u:
     default:
       break;
   }
@@ -155,7 +152,7 @@ u8char::u8char(const char* bytes, const std::size_t length) {
     }
 
     valid_encoding_ = valid;
-    codepoint_ = detail::to_codepoint(num_octets, encoded_storage_);
+    codepoint_ = detail::to_codepoint(encoded_storage_);
   }
 }
 
