@@ -32,6 +32,14 @@ std::size_t num_octets(const char c) {
   }
 }
 
+struct decode_params {
+  std::size_t enc_byte_idx_;
+  std::size_t high_enc_bit_;
+  std::size_t low_enc_bit_;
+  std::size_t high_cp_bit_;
+  std::size_t low_cp_bit_;
+};
+
 std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes) {
   std::uint32_t codepoint{0};
 
@@ -61,53 +69,80 @@ std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes) {
     }
   };
 
+  // TODO: clean up  successive calls to decode_bits by creating a vector of
+  // decode_params which we can then iterate over and only call decode_bits once
+
   const std::size_t num_octets = encoded_bytes.size();
   switch (num_octets) {
-    case 4u:
+    case 4u: {
       // First 21 bits of the 32-bit integer need to be filled
+      std::vector<decode_params> params;
+      params.reserve(4u);
 
       // The 3 LSB (2-0) from encoded_bytes index 0 fill the (20-18) bits in the
       // integer
-      decode_bits(0u, 2u, 0u, 20u, 18u);
+      params.push_back(decode_params{0u, 2u, 0u, 20u, 18u});
 
       // The 6 LSB (5-0) from encoded_bytes index 1 fill the (17-12)
       // bits in the integer
-      decode_bits(1u, 5u, 0u, 17u, 12u);
+      params.push_back(decode_params{1u, 5u, 0u, 17u, 12u});
 
       // The 6 LSB (5-0) from encoded_bytes index 2 fill the
       // (11-6) bits in the integer
-      decode_bits(2u, 5u, 0u, 11u, 6u);
+      params.push_back(decode_params{2u, 5u, 0u, 11u, 6u});
 
       // The 6 LSB (5-0) from encoded_bytes index 3
       // fill the (5-0) bits in the integer
-      decode_bits(3u, 5u, 0u, 5u, 0u);
+      params.push_back(decode_params{3u, 5u, 0u, 5u, 0u});
+
+      for (const auto& param : params) {
+        decode_bits(param.enc_byte_idx_, param.high_enc_bit_,
+                    param.low_enc_bit_, param.high_cp_bit_, param.low_cp_bit_);
+      }
       break;
-    case 3u:
+    }
+    case 3u: {
       // First 16 bits of the 32-bit integer need to be filled
+      std::vector<decode_params> params;
+      params.reserve(3u);
 
       // The 4 LSB (3-0) from encoded_bytes index 0 fill the (15-12) bits in the
       // integer
-      decode_bits(0u, 3u, 0u, 15u, 12u);
+      params.push_back(decode_params{0u, 3u, 0u, 15u, 12u});
 
       // the 6 LSB (5-0) from encoded_bytes index 1 fill the (11-6) bits
       // in the integer
-      decode_bits(1u, 5u, 0u, 11u, 6u);
+      params.push_back(decode_params{1u, 5u, 0u, 11u, 6u});
 
       // The 6 LSB (5-0) from encoded_bytes index 2 fill the
       // (5-0) bits in the integer
-      decode_bits(2u, 5u, 0u, 5u, 0u);
+      params.push_back(decode_params{2u, 5u, 0u, 5u, 0u});
+
+      for (const auto& param : params) {
+        decode_bits(param.enc_byte_idx_, param.high_enc_bit_,
+                    param.low_enc_bit_, param.high_cp_bit_, param.low_cp_bit_);
+      }
       break;
-    case 2u:
+    }
+    case 2u: {
       // First 11 bits of the 32-bit integer need to be filled
+      std::vector<decode_params> params;
+      params.reserve(2u);
 
       // The 5 LSB (4-0) from encoded_bytes index 0 fill the (10-6) bits in the
       // integer
-      decode_bits(0u, 4u, 0u, 10u, 6u);
+      params.push_back(decode_params{0u, 4u, 0u, 10u, 6u});
 
       // The 6 LSB (5-0) from encoded_bytes index 1 fill the (5-0) bits
       // in the integer
-      decode_bits(1u, 5u, 0u, 5u, 0u);
+      params.push_back(decode_params{1u, 5u, 0u, 5u, 0u});
+
+      for (const auto& param : params) {
+        decode_bits(param.enc_byte_idx_, param.high_enc_bit_,
+                    param.low_enc_bit_, param.high_cp_bit_, param.low_cp_bit_);
+      }
       break;
+    }
     case 1u:
       // Can directly convert byte value into codepoint integer
       codepoint = static_cast<std::uint32_t>(encoded_bytes[0]);
