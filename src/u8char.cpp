@@ -33,11 +33,11 @@ std::size_t num_octets(const char c) {
 }
 
 struct decode_params {
-  std::size_t enc_byte_idx_;
-  std::size_t high_enc_bit_;
-  std::size_t low_enc_bit_;
-  std::size_t high_cp_bit_;
-  std::size_t low_cp_bit_;
+  std::size_t enc_byte_idx_{0};
+  std::size_t high_enc_bit_{0};
+  std::size_t low_enc_bit_{0};
+  std::size_t high_cp_bit_{0};
+  std::size_t low_cp_bit_{0};
 };
 
 std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes) {
@@ -153,6 +153,14 @@ std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes) {
   return codepoint;
 }
 
+struct encode_params {
+  char octet_{0};
+  std::size_t low_cp_bit_{0};
+  std::size_t high_cp_bit_{0};
+  std::size_t low_enc_bit_{0};
+  std::size_t high_enc_bit_{0};
+};
+
 std::vector<char> to_encoded_bytes(std::uint32_t codepoint) {
   /*
   https://www.rfc-editor.org/rfc/rfc3629#section-3
@@ -187,10 +195,10 @@ std::vector<char> to_encoded_bytes(std::uint32_t codepoint) {
     }
   };
 
-  auto encode_bits = [&encode_bit](char& octet, const std::size_t low_cp_bit,
+  auto encode_bits = [&encode_bit](char octet, const std::size_t low_cp_bit,
                                    const std::size_t high_cp_bit,
                                    const std::size_t low_enc_bit,
-                                   const std::size_t high_enc_bit) {
+                                   const std::size_t high_enc_bit) -> char {
     std::size_t enc_bit = low_enc_bit;
     std::size_t cp_bit = low_cp_bit;
     for (; enc_bit <= high_enc_bit && cp_bit <= high_cp_bit;
@@ -202,6 +210,7 @@ std::vector<char> to_encoded_bytes(std::uint32_t codepoint) {
           cp_bit == std::numeric_limits<std::size_t>::max())
         break;
     }
+    return octet;
   };
 
   if (codepoint >= 0x00u && codepoint <= 0x7Fu) {
@@ -211,70 +220,85 @@ std::vector<char> to_encoded_bytes(std::uint32_t codepoint) {
     encoded_bytes.push_back(static_cast<char>(codepoint));
 
   } else if (codepoint >= 0x80u && codepoint <= 0x7FFu) {
-    encoded_bytes.reserve(2u);
+    std::vector<encode_params> params;
+    params.reserve(2u);
 
     // The 6 LSB (0-5) from the integer fill the (0-5) bits in the
     // encoded octet
     char second_octet = detail::SeqChar;
-    encode_bits(second_octet, 0u, 5u, 0u, 5u);
+    params.push_back(encode_params{second_octet, 0u, 5u, 0u, 5u});
 
     // The 5 higher-order bits (6-10) from the integer fill the (0-4) bits in
     // the encoded octet
     char first_octet = detail::TwoOctetChar;
-    encode_bits(first_octet, 6u, 10u, 0u, 4u);
+    params.push_back(encode_params{first_octet, 6u, 10u, 0u, 4u});
 
-    encoded_bytes.push_back(first_octet);
-    encoded_bytes.push_back(second_octet);
+    encoded_bytes.reserve(2u);
+    for (auto itr = params.rbegin(); itr != params.rend(); ++itr) {
+      auto& param = *itr;
+      encoded_bytes.push_back(
+          encode_bits(param.octet_, param.low_cp_bit_, param.high_cp_bit_,
+                      param.low_enc_bit_, param.high_enc_bit_));
+    }
 
   } else if (codepoint >= 0x800u && codepoint <= 0xFFFFu) {
-    encoded_bytes.reserve(3u);
+    std::vector<encode_params> params;
+    params.reserve(3u);
 
     // The 6 LSB (0-5) from the integer fill the (0-5) bits in the
     // encoded octet
     char third_octet = detail::SeqChar;
-    encode_bits(third_octet, 0u, 5u, 0u, 5u);
+    params.push_back(encode_params{third_octet, 0u, 5u, 0u, 5u});
 
     // The 6 higher-order bits (6-11) from the integer fill the (0-5) bits in
     // the encoded octet
     char second_octet = detail::SeqChar;
-    encode_bits(second_octet, 6u, 11u, 0u, 5u);
+    params.push_back(encode_params{second_octet, 6u, 11u, 0u, 5u});
 
     // The 4 higher-order bits (12-15) from the integer fill the (0-3) bits in
     // the encoded octet
     char first_octet = detail::ThreeOctetChar;
-    encode_bits(first_octet, 12u, 15u, 0u, 3u);
+    params.push_back(encode_params{first_octet, 12u, 15u, 0u, 3u});
 
-    encoded_bytes.push_back(first_octet);
-    encoded_bytes.push_back(second_octet);
-    encoded_bytes.push_back(third_octet);
+    encoded_bytes.reserve(3u);
+    for (auto itr = params.rbegin(); itr != params.rend(); ++itr) {
+      auto& param = *itr;
+      encoded_bytes.push_back(
+          encode_bits(param.octet_, param.low_cp_bit_, param.high_cp_bit_,
+                      param.low_enc_bit_, param.high_enc_bit_));
+    }
 
   } else if (codepoint >= 0x10000u && codepoint <= 0x10FFFFu) {
-    encoded_bytes.reserve(4u);
+    std::vector<encode_params> params;
+    params.reserve(4u);
 
     // The 6 LSB (0-5) from the integer fill the (0-5) bits in the
     // encoded octet
     char fourth_octet = detail::SeqChar;
-    encode_bits(fourth_octet, 0u, 5u, 0u, 5u);
+    params.push_back(encode_params{fourth_octet, 0u, 5u, 0u, 5u});
 
     // The 6 higher-order bits (6-11) from the integer fill the (0-5) bits in
     // the encoded octet
     char third_octet = detail::SeqChar;
-    encode_bits(third_octet, 6u, 11u, 0u, 5u);
+    params.push_back(encode_params{third_octet, 6u, 11u, 0u, 5u});
 
     // The 6 higher-order bits (12-17) from the integer fill the (0-5) bits in
     // the encoded octet
     char second_octet = detail::SeqChar;
-    encode_bits(second_octet, 12u, 17u, 0u, 5u);
+    params.push_back(encode_params{second_octet, 12u, 17u, 0u, 5u});
 
     // The 3 higher-order bits (18-20) from the integer fill the (0-2) bits in
     // the encoded octet
     char first_octet = detail::FourOctetChar;
-    encode_bits(first_octet, 18u, 20u, 0u, 2u);
+    params.push_back(encode_params{first_octet, 18u, 20u, 0u, 2u});
 
-    encoded_bytes.push_back(first_octet);
-    encoded_bytes.push_back(second_octet);
-    encoded_bytes.push_back(third_octet);
-    encoded_bytes.push_back(fourth_octet);
+    encoded_bytes.reserve(4u);
+    for (auto itr = params.rbegin(); itr != params.rend(); ++itr) {
+      auto& param = *itr;
+      encoded_bytes.push_back(
+          encode_bits(param.octet_, param.low_cp_bit_, param.high_cp_bit_,
+                      param.low_enc_bit_, param.high_enc_bit_));
+    }
   }
 
   return encoded_bytes;
