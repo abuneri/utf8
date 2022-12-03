@@ -31,8 +31,6 @@ class u8text {
  private:
   explicit u8text(const std::vector<u8char> chars);
 
-  // TODO: Handle Byte-Order-Mark (BOM)
-
   // https://www.unicode.org/reports/tr29/
   // TODO: Handle Grapheme Clusters, need this before we can implement utf8 text
   // things like unicode equality or starts_with/ends_with/contains/sorting

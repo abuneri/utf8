@@ -20,7 +20,8 @@ test_srcs = [
     'test/main.cpp',
     'test/encoding_validity.cpp',
     'test/decoding_codepoint.cpp',
-    'test/encoding_codepoint.cpp'
+    'test/encoding_codepoint.cpp',
+    'test/parse_bom.cpp'
 ]
 test = executable(
     'libaucutf8-test',
@@ -36,5 +37,6 @@ test = executable(
 
 test(
     'libaucutf8 unit tests',
-    test
+    test,
+    workdir : meson.project_build_root()
 ) 

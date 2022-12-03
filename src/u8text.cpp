@@ -3,6 +3,31 @@
 
 namespace auc {
 
+namespace detail {
+
+std::size_t parse_bom(const char* bytes, const std::size_t length) {
+  //  https://www.rfc-editor.org/rfc/rfc3629#section-6
+  if (length < 3) return 0;
+
+  auto bom_seq = [&bytes](std::size_t idx) -> bool {
+    return ((bytes[idx] & 0xEF) == 0xEF && (bytes[idx + 1u] & 0xBB) == 0xBB &&
+            (bytes[idx + 2u] & 0xBF) == 0xBF);
+  };
+
+  std::size_t idx{0};
+
+  while (idx < length) {
+    if (bom_seq(idx)) {
+      idx += 3u;
+    } else {
+      break;
+    }
+  }
+
+  return idx;
+}
+}  // namespace detail
+
 u8text::u8text(std::string_view bytes) {
   parse_chars(bytes.data(), bytes.length());
 }
@@ -48,7 +73,9 @@ std::string u8text::data() const {
 }
 
 void u8text::parse_chars(const char* bytes, const std::size_t length) {
-  for (std::size_t idx = 0; idx < length;) {
+  std::size_t idx = detail::parse_bom(bytes, length);
+
+  for (; idx < length;) {
     const char initial_byte = bytes[idx];
 
     // Peek first to get number of octets in the given utf8 character
