@@ -28,6 +28,15 @@ bool u8text::is_valid() const {
   return valid;
 }
 
+std::vector<codepoint> u8text::get_codepoints() const {
+  std::vector<codepoint> codepoints;
+  codepoints.reserve(chars_.size());
+  for (const auto& c : chars_) {
+    codepoints.push_back(c.get_codepoint());
+  }
+  return codepoints;
+}
+
 std::string u8text::data() const {
   std::string raw_data;
 

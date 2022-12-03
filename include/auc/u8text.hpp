@@ -1,9 +1,9 @@
 #pragma once
 
-#include "u8char.hpp"
-
 #include <string>
 #include <string_view>
+
+#include "u8char.hpp"
 
 namespace auc {
 
@@ -15,7 +15,7 @@ class u8text {
 
   bool is_valid() const;
 
-  const std::vector<u8char>& get_chars() const { return chars_; }
+  std::vector<codepoint> get_codepoints() const;
 
   std::string data() const;
 
@@ -31,9 +31,12 @@ class u8text {
  private:
   explicit u8text(const std::vector<u8char> chars);
 
-  // TODO: handle Byte-Order-Mark (BOM)
-  // TODO: handle Grapheme Clusters, need this before we can implement utf8 text
-  // searching/sorting
+  // TODO: Handle Byte-Order-Mark (BOM)
+
+  // https://www.unicode.org/reports/tr29/
+  // TODO: Handle Grapheme Clusters, need this before we can implement utf8 text
+  // things like unicode equality or starts_with/ends_with/contains/sorting
+  // u8text methods
   void parse_chars(const char* bytes, const std::size_t length);
 
   std::vector<u8char> chars_;
