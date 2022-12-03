@@ -98,7 +98,6 @@ __pycache__
 packagecache
 /MANIFEST
 /build
-subprojects/*
 /dist
 /meson.egg-info
 
