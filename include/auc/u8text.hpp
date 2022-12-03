@@ -1,22 +1,17 @@
 #pragma once
 
-#include <string>
-
 #include "u8char.hpp"
+
+#include <string>
+#include <string_view>
 
 namespace auc {
 
 class u8text {
  public:
-  // Expects null terminated data
-  explicit u8text(const char* chars);
-
-  // Expects non null terminated data
-  explicit u8text(const char* bytes, const std::size_t length);
+  explicit u8text(std::string_view bytes);
 
   static u8text from_codepoints(const std::vector<codepoint>& cps);
-
-  // TODO: add std::string ctor
 
   bool is_valid() const;
 
@@ -36,6 +31,9 @@ class u8text {
  private:
   explicit u8text(const std::vector<u8char> chars);
 
+  // TODO: handle Byte-Order-Mark (BOM)
+  // TODO: handle Grapheme Clusters, need this before we can implement utf8 text
+  // searching/sorting
   void parse_chars(const char* bytes, const std::size_t length);
 
   std::vector<u8char> chars_;

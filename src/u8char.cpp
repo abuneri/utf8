@@ -301,7 +301,8 @@ u8char::u8char(const char byte) {
   codepoint_ = static_cast<std::uint32_t>(byte);
 }
 
-u8char::u8char(const char* bytes, const std::size_t length) {
+u8char::u8char(std::string_view bytes) {
+  const std::size_t length = bytes.length();
   if (length > 0) {
     const char initial_byte = bytes[0];
     const std::size_t num_octets = detail::num_octets(initial_byte);

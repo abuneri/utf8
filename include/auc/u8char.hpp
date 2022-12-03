@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "codepoint.hpp"
@@ -37,11 +38,10 @@ std::vector<char> to_encoded_bytes(std::uint32_t codepoint);
 //   0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 class u8char {
  public:
+
   explicit u8char(const char byte);
 
-  explicit u8char(const char* bytes, const std::size_t length);
-
-  // TODO: add std::string ctor
+  explicit u8char(std::string_view bytes);
 
   static u8char from_codepoint(codepoint cp);
 

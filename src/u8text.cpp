@@ -3,13 +3,8 @@
 
 namespace auc {
 
-u8text::u8text(const char* chars) {
-  const std::size_t num_chars = std::strlen(chars);
-  parse_chars(chars, num_chars);
-}
-
-u8text::u8text(const char* bytes, const std::size_t length) {
-  parse_chars(bytes, length);
+u8text::u8text(std::string_view bytes) {
+  parse_chars(bytes.data(), bytes.length());
 }
 
 u8text::u8text(const std::vector<u8char> chars) : chars_(chars) {}
@@ -44,7 +39,6 @@ std::string u8text::data() const {
 }
 
 void u8text::parse_chars(const char* bytes, const std::size_t length) {
-  // TODO: handle Byte-Order-Mark (BOM)
   for (std::size_t idx = 0; idx < length;) {
     const char initial_byte = bytes[idx];
 
@@ -65,7 +59,7 @@ void u8text::parse_chars(const char* bytes, const std::size_t length) {
       u8bytes.push_back(bytes[seq]);
     }
 
-    chars_.push_back(u8char{u8bytes.data(), num_octets});
+    chars_.emplace_back(std::string_view{u8bytes.data(), num_octets});
 
     // Skip to beginning of next utf8 character
     idx += num_octets;
