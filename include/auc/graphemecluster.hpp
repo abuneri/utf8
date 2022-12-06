@@ -10,7 +10,7 @@ struct graphemecluster;
 
 namespace detail {
 
-std::vector<graphemecluster> build_grapheme_cluters(
+std::vector<graphemecluster> build_grapheme_clusters(
     const std::vector<u8char>& chars);
 
 }  // namespace detail

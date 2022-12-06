@@ -43,7 +43,7 @@ class u8text {
   // TODO: Handle Grapheme Clusters, need this before we can implement utf8 text
   // things like unicode equality or starts_with/ends_with/contains/sorting
   // u8text methods
-  std::vector<graphemecluster> grapheme_cluters_;
+  std::vector<graphemecluster> grapheme_clusters_;
 };
 
 }  // namespace auc

@@ -215,13 +215,19 @@ bool has_break(const grapheme_cluster_break& b1,
   return break_chart[static_cast<int>(b1.prop_)][static_cast<int>(b2.prop_)];
 }
 
-std::vector<graphemecluster> build_grapheme_cluters(
+// Specialized RI break rules (can only have 2 in a cluster bfore
+// we must break)
+void handle_regionalindicator_breaks(std::vector<graphemecluster>& clusters) {
+  // TODO
+}
+
+std::vector<graphemecluster> build_grapheme_clusters(
     const std::vector<u8char>& chars) {
   if (!breaks_populated_) {
     parse_grapheme_breaks();
   }
 
-  std::vector<graphemecluster> grapheme_cluters;
+  std::vector<graphemecluster> grapheme_clusters;
 
   const std::vector<grapheme_cluster_break> breaks = get_char_breaks(chars);
 
@@ -229,16 +235,16 @@ std::vector<graphemecluster> build_grapheme_cluters(
   if (breaks.empty())
     return {};
   else if (breaks.size() == 1u) {
-    grapheme_cluters.push_back(graphemecluster{chars});
-    return grapheme_cluters;
+    grapheme_clusters.push_back(graphemecluster{chars});
+    return grapheme_clusters;
   } else if (breaks.size() == 2u) {
     if (has_break(breaks[0], breaks[1])) {
-      grapheme_cluters.push_back(graphemecluster{{chars[0]}});
-      grapheme_cluters.push_back(graphemecluster{{chars[1]}});
+      grapheme_clusters.push_back(graphemecluster{{chars[0]}});
+      grapheme_clusters.push_back(graphemecluster{{chars[1]}});
     } else {
-      grapheme_cluters.push_back(graphemecluster{chars});
+      grapheme_clusters.push_back(graphemecluster{chars});
     }
-    return grapheme_cluters;
+    return grapheme_clusters;
   }
 
   // TODO: Do a cleaner algorithm for building up grapheme clusters
@@ -253,11 +259,10 @@ std::vector<graphemecluster> build_grapheme_cluters(
 
     bool clustering = true;
     while (clustering && temp_grapheme_end < num_breaks) {
-      // TODO: if there already is a character in the cluster, peek the last
-      // one. Currently would just be used for handling regional indicator
-      // clusters that we know should only have 2 sequences in a cluster
-      clustering &=
-          !has_break(breaks[temp_grapheme_start], breaks[temp_grapheme_end]);
+      const grapheme_cluster_break b1 = breaks[temp_grapheme_start];
+      const grapheme_cluster_break b2 = breaks[temp_grapheme_end];
+
+      clustering = !has_break(b1, b2);
       ++temp_grapheme_start;
       ++temp_grapheme_end;
     }
@@ -273,19 +278,20 @@ std::vector<graphemecluster> build_grapheme_cluters(
       cluster.chars_.push_back(chars[char_idx]);
     }
 
-    grapheme_cluters.push_back(cluster);
+    grapheme_clusters.push_back(cluster);
 
     grapheme_start = grapheme_end;
 
     // Last character is a a single cluster, add that as incrementing again will
     // breka the loop
     if (num_cluster_chars > 0u && grapheme_start == breaks.size() - 1) {
-      grapheme_cluters.push_back(graphemecluster{{chars[grapheme_end]}});
+      grapheme_clusters.push_back(graphemecluster{{chars[grapheme_end]}});
     }
     ++grapheme_end;
   }
 
-  return grapheme_cluters;
+  handle_regionalindicator_breaks(grapheme_clusters);
+  return grapheme_clusters;
 }
 
 }  // namespace detail

@@ -71,9 +71,8 @@ TEST(grapheme_clusters, sample7) {
   ASSERT_EQ(2u, clusters.size());
 }
 
+// TODO: Support specialized regional indicator behaviour
 //TEST(grapheme_clusters, sample8) {
-//  // TODO: fix issue with RI break rules (can only have 2 in a row before must
-//  // break
 //  char utf8_chars[] = u8"\U0001F1E6\U0001F1E7\U0001F1E8\u0062";
 //  auc::u8text utf8_text(utf8_chars);
 //
@@ -83,7 +82,7 @@ TEST(grapheme_clusters, sample7) {
 //}
 //
 // TEST(grapheme_clusters, sample9) {
-//   char utf8_chars[] = u8"";
+//   char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\U0001F1E8\u0062";
 //   auc::u8text utf8_text(utf8_chars);
 //
 //   const std::vector<auc::graphemecluster> clusters =
@@ -117,45 +116,48 @@ TEST(grapheme_clusters, sample7) {
 //       utf8_text.get_grapheme_clusters();
 //   ASSERT_EQ(1u, clusters.size());
 // }
+
+ TEST(grapheme_clusters, sample13) {
+   char utf8_chars[] = u8"\u0061\u200D";
+   auc::u8text utf8_text(utf8_chars);
+
+   const std::vector<auc::graphemecluster> clusters =
+       utf8_text.get_grapheme_clusters();
+   ASSERT_EQ(1u, clusters.size());
+ }
+
+ TEST(grapheme_clusters, sample14) {
+   char utf8_chars[] = u8"\u0061\u0308\u0062";
+   auc::u8text utf8_text(utf8_chars);
+
+   const std::vector<auc::graphemecluster> clusters =
+       utf8_text.get_grapheme_clusters();
+   ASSERT_EQ(2u, clusters.size());
+}
+
+// TODO: SpacingMark tests
+//TEST(grapheme_clusters, sample15) {
+//  char utf8_chars[] = u8"";
+//  auc::u8text utf8_text(utf8_chars);
 //
-// TEST(grapheme_clusters, sample13) {
-//   char utf8_chars[] = u8"";
-//   auc::u8text utf8_text(utf8_chars);
+//  const std::vector<auc::graphemecluster> clusters =
+//      utf8_text.get_grapheme_clusters();
+//  ASSERT_EQ(1u, clusters.size());
+//}
+
+ // TODO: Fix prepend bug
+//TEST(grapheme_clusters, sample16) {
+//  char utf8_chars[] = u8"\u0061\u0600\u0062";
+//  auc::u8text utf8_text(utf8_chars);
 //
-//   const std::vector<auc::graphemecluster> clusters =
-//       utf8_text.get_grapheme_clusters();
-//   ASSERT_EQ(1u, clusters.size());
-// }
-//
-// TEST(grapheme_clusters, sample14) {
-//   char utf8_chars[] = u8"";
-//   auc::u8text utf8_text(utf8_chars);
-//
-//   const std::vector<auc::graphemecluster> clusters =
-//       utf8_text.get_grapheme_clusters();
-//   ASSERT_EQ(1u, clusters.size());
-// }
-//
-// TEST(grapheme_clusters, sample15) {
-//   char utf8_chars[] = u8"";
-//   auc::u8text utf8_text(utf8_chars);
-//
-//   const std::vector<auc::graphemecluster> clusters =
-//       utf8_text.get_grapheme_clusters();
-//   ASSERT_EQ(1u, clusters.size());
-// }
-//
-// TEST(grapheme_clusters, sample16) {
-//   char utf8_chars[] = u8"";
-//   auc::u8text utf8_text(utf8_chars);
-//
-//   const std::vector<auc::graphemecluster> clusters =
-//       utf8_text.get_grapheme_clusters();
-//   ASSERT_EQ(1u, clusters.size());
-// }
-//
+//  const std::vector<auc::graphemecluster> clusters =
+//      utf8_text.get_grapheme_clusters();
+//  ASSERT_EQ(2u, clusters.size());
+//}
+
+// TODO: Support ExtPict grapheme break property
 // TEST(grapheme_clusters, sample17) {
-//   char utf8_chars[] = u8"";
+//   char utf8_chars[] = u8"\U0001F476\U0001F3FF";
 //   auc::u8text utf8_text(utf8_chars);
 //
 //   const std::vector<auc::graphemecluster> clusters =
@@ -209,13 +211,13 @@ TEST(grapheme_clusters, sample7) {
 // }
 //
 // TEST(grapheme_clusters, sample23) {
-//   char utf8_chars[] = u8"";
-//   auc::u8text utf8_text(utf8_chars);
+//  char utf8_chars[] = u8"\u2701\u200D\u2701";
+//  auc::u8text utf8_text(utf8_chars);
 //
-//   const std::vector<auc::graphemecluster> clusters =
-//       utf8_text.get_grapheme_clusters();
-//   ASSERT_EQ(1u, clusters.size());
-// }
+//  const std::vector<auc::graphemecluster> clusters =
+//      utf8_text.get_grapheme_clusters();
+//  ASSERT_EQ(1u, clusters.size());
+//}
 //
 // TEST(grapheme_clusters, sample24) {
 //   char utf8_chars[] = u8"";
