@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <array>
+#include <auc/graphemecluster.hpp>
 #include <auc/u8text.hpp>
 #include <cstring>
 
@@ -26,13 +29,17 @@ std::size_t parse_bom(const char* bytes, const std::size_t length) {
 
   return idx;
 }
+
 }  // namespace detail
 
 u8text::u8text(std::string_view bytes) {
   parse_chars(bytes.data(), bytes.length());
+  grapheme_cluters_ = detail::build_grapheme_cluters(chars_);
 }
 
-u8text::u8text(const std::vector<u8char> chars) : chars_(chars) {}
+u8text::u8text(const std::vector<u8char> chars) : chars_(chars) {
+  grapheme_cluters_ = detail::build_grapheme_cluters(chars_);
+}
 
 u8text u8text::from_codepoints(const std::vector<codepoint>& cps) {
   std::vector<u8char> chars;
@@ -70,6 +77,10 @@ std::string u8text::data() const {
   }
 
   return raw_data;
+}
+
+const std::vector<graphemecluster>& u8text::get_grapheme_clusters() const {
+  return grapheme_cluters_;
 }
 
 void u8text::parse_chars(const char* bytes, const std::size_t length) {

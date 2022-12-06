@@ -2,6 +2,8 @@ project('utf8', 'cpp', version: '0.1.0', default_options : 'cpp_std=c++17')
 
 lib_srcs = [
     'include/auc/codepoint.hpp',
+    'include/auc/graphemecluster.hpp',
+    'src/graphemecluster.cpp',
     'include/auc/u8char.hpp',
     'src/u8char.cpp',
     'include/auc/u8text.hpp',
@@ -21,7 +23,8 @@ test_srcs = [
     'test/encoding_validity.cpp',
     'test/decoding_codepoint.cpp',
     'test/encoding_codepoint.cpp',
-    'test/parse_bom.cpp'
+    'test/parse_bom.cpp',
+    'test/grapheme_clusters.cpp'
 ]
 test = executable(
     'libaucutf8-test',
@@ -32,7 +35,8 @@ test = executable(
     ],
     link_with: [
         lib
-    ]
+    ],
+    install_dir : meson.project_build_root()
 )
 
 test(

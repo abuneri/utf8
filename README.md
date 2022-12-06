@@ -7,6 +7,8 @@ A simple UTF-8 encoded text type, mostly for learning purposes
 - https://en.wikipedia.org/wiki/UTF-8
 - _The Unicode Standard, Version 15.0.0_
 - https://www.unicode.org/reports/tr29/
+- https://www.unicode.org/reports/tr10/
+- https://www.unicode.org/reports/tr18/
 
 ## Building (Meson)
 This project uses the [meson build generation system](https://mesonbuild.com/), which uses Ninja as a backend by default and works on Windows, macOS, and Linux platforms.
@@ -24,6 +26,9 @@ An example of how to customize the backend to develop with MSVC via Microsoft's 
 ## Features
 - UTF-8 Validation
 - UTF-8-BOM Support
-- **[TODO]** Grapheme Clustering
+- Grapheme Clustering
+- **[TODO]** Collation
+- **[TODO]** Regular Expressions
 - Decode to Codepoints
 - Encode from Codepoints
+- **[TODO]** Small String Optimization
