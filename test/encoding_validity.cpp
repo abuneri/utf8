@@ -6,10 +6,6 @@ TEST(encoding_validity, valid_utf8) {
   char utf8_chars[] = u8"߿က$£ह€한𐍈򟿿";
   auc::u8text utf8_text(utf8_chars);
   EXPECT_TRUE(utf8_text.is_valid());
-
-  char grapheme_clus[] = u8"ǵ";
-  auc::u8text t(grapheme_clus);
-  t.is_valid();
 }
 
 TEST(encoding_validity, invalid_utf8) {

@@ -32,8 +32,6 @@ def codepoint_range(codepoint):
             end = int(codepoint[6:10], base=16)
         elif len(codepoint) == 12:
             # U+XXXXX
-            t = codepoint[0:5]
-            t1 = codepoint[7:12]
             start = int(codepoint[0:5], base=16)
             end = int(codepoint[7:12], base=16)
 
