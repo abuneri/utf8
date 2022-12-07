@@ -67,17 +67,6 @@ def get_properties():
             for cp in codepoints:
                 props.append(GraphemeBreakProperty(cp, prop_type))
 
-    """
-    https://www.unicode.org/reports/tr44/#Regional_Indicator
-    NOTE: For some reason the RI property types aren't included in
-    GraphemePropertyText.txt, so adding them manually according to the
-    Unicode Character Database spec
-    regional_indicators = codepoint_range("1F1E6..1F1FF")
-    prop_type = 'RI'
-    for cp in regional_indicators:
-        props.append(GraphemeBreakProperty(cp, prop_type))
-    """
-
     return props
 
 
