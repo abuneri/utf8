@@ -109,7 +109,7 @@ def get_cpp_unordermap_data(props):
     for prop_idx in range(num_props):
         prop = props[prop_idx]
         header_data += \
-            f'  {{{prop.codepoint}, {{{prop.codepoint}, {prop.prop_type}}}}}'
+            f'  {{{prop.codepoint}u, {{{prop.codepoint}u, {prop.prop_type}}}}}'
         if prop_idx < num_props - 1:
             header_data += ',\n'
 
