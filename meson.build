@@ -4,10 +4,11 @@ lib_srcs = [
     'include/auc/codepoint.hpp',
     'include/auc/graphemecluster.hpp',
     'src/graphemecluster.cpp',
+    'src/graphemebreakproperty_lookup.hpp',
     'include/auc/u8char.hpp',
     'src/u8char.cpp',
     'include/auc/u8text.hpp',
-    'src/u8text.cpp',
+    'src/u8text.cpp'
 ]
 lib = static_library(
     'aucutf8',
