@@ -25,6 +25,11 @@ std::vector<grapheme_cluster_break> get_char_breaks(
   return breaks;
 }
 
+// TODO: make all 24 samples pass:
+// https://www.unicode.org/reports/tr44/#Extended_Pictographic
+// https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
+// https://www.unicode.org/Public/15.0.0/ucd/emoji/emoji-data.txt
+
 // https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.html
 bool has_break(const grapheme_cluster_break& b1,
                const grapheme_cluster_break& b2) {
