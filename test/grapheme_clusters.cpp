@@ -2,7 +2,7 @@
 
 #include <auc/u8text.hpp>
 
-// Validating samples from:
+// TODO: validate all samples from:
 // https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.html#samples
 
 // TODO: Properly test all scnaerios from:

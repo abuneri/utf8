@@ -25,10 +25,14 @@ std::vector<grapheme_cluster_break> get_char_breaks(
   return breaks;
 }
 
-// TODO: make all 24 samples pass:
-// https://www.unicode.org/reports/tr44/#Extended_Pictographic
+// The following is what can be used to implement the breaking rules instead of
+// the table below.
 // https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
-// https://www.unicode.org/Public/15.0.0/ucd/emoji/emoji-data.txt
+//
+// See
+// https://github.com/foliojs/grapheme-breaker/blob/master/src/GraphemeBreaker.js
+// as an older example of how it can be translated to code
+
 
 // https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.html
 bool has_break(const grapheme_cluster_break& b1,
