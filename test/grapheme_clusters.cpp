@@ -2,13 +2,49 @@
 #include <auc/u8text.hpp>
 #include "graphemebreaktest_data.hpp"
 
-// TODO: validate all samples from:
-// https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.html#samples
-
-// TODO: Properly test all scnaerios from:
+// Test all scenarios from:
 // https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.txt
-// via gtest TEST_P on data structure generated from python script parsing the above file
 
+void PrintTo(const auc::codepoint& codepoint, ::std::ostream* os) {
+  *os << codepoint.get_num();
+}
+
+class GraphemeBreakTest
+    : public testing::TestWithParam<auc::detail::grapheme_cluster_break_test> {
+};
+
+TEST_P(GraphemeBreakTest, Clusters) {
+  // Inside a test, access the test parameter with the GetParam() method
+  // of the TestWithParam<T> class:
+  const auc::detail::grapheme_cluster_break_test& test = GetParam();
+
+  const auto utf8 = auc::u8text::from_codepoints(test.codepoints_);
+
+  const std::vector<auc::graphemecluster> clusters =
+      utf8.get_grapheme_clusters();
+
+  std::vector<std::vector<auc::codepoint>> actual_clusters;
+  for (const auto& cluster : clusters) {
+    std::vector<auc::codepoint> codepoints;
+    for (const auto& u8char : cluster.chars_) {
+      codepoints.push_back(u8char.get_codepoint());
+    }
+   actual_clusters.push_back(codepoints);
+  }
+
+  const auto& expected_clusters = test.clusters_;
+  EXPECT_EQ(expected_clusters, actual_clusters);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    BreakProperties, GraphemeBreakTest,
+    testing::ValuesIn(auc::detail::grapheme_cluster_break_tests),
+    [](const ::testing::TestParamInfo<auc::detail::grapheme_cluster_break_test>&
+           info) { return info.param.name_; });
+
+
+// Test all samples from:
+// https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.html#samples
 TEST(grapheme_clusters, sample1) {
   char utf8_chars[] = u8"\u000D\u000A\u0061\u000A\u0308";
   auc::u8text utf8_text(utf8_chars);

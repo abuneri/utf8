@@ -15,12 +15,22 @@ def get_tests():
     tests = []
     with open('GraphemeBreakTest.txt', 'r', encoding='utf-8') as gpt_file:
         lines = gpt_file.readlines()
+        test_names = []
         for line in lines:
             if line.startswith(COMMENT_CHAR) or not line:
                 continue
             test, name = line.split(ENDTEST_CHAR)
             test_parts = test.split()
             test_name = name[1:-1].strip()
+
+            # Create name that is valid for google test
+            test_name = test_name.replace(NOBREAK_CHAR, 'x')
+            test_name = test_name.replace(BREAK_CHAR, 'o')
+            test_name = test_name.replace(' ', '_')
+            test_name = ''.join(c for c in test_name if c.isalnum())
+            if test_name in test_names:
+                continue
+            test_names.append(test_name)
 
             # The break char prefix/suffix can be ignored as we only care about the differences within chars
             test_parts = test_parts[1:-1]
