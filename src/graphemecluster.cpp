@@ -26,15 +26,6 @@ std::vector<grapheme_cluster_break> get_char_breaks(
   return breaks;
 }
 
-// The following is what can be used to implement the breaking rules instead of
-// the table below.
-// https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
-//
-// See
-// https://github.com/foliojs/grapheme-breaker/blob/master/src/GraphemeBreaker.js
-// as an older example of how it can be translated to code
-
-
 bool has_break(const grapheme_cluster_break& previous,
                const grapheme_cluster_break& current) {
   auto contains_prop = [](const std::vector<auc::detail::property>& props,
