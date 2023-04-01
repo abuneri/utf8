@@ -2,6 +2,7 @@
 #include "graphemebreakproperty_lookup.hpp"
 
 #include <tuple>
+#include <algorithm>
 
 namespace auc {
 
@@ -34,39 +35,93 @@ std::vector<grapheme_cluster_break> get_char_breaks(
 // as an older example of how it can be translated to code
 
 
-// https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.html
-bool has_break(const grapheme_cluster_break& b1,
-               const grapheme_cluster_break& b2) {
-      static bool break_chart[14][14] = {
-              /*  Other  | CR |  LF  | Control | Extend | RI | Prepend | SpacingMark |   L   |   V   |   T   |  LV  |  LVT  | ZWJ  */
-      /* Other */ true,   true, true,   true,    false,  true,  true,      false,      true,   true,   true,   true,  true,  false,
-         /* CF */ true,   true, false,  true,    true,   true,  true,      true,       true,   true,   true,   true,  true,  true,
-         /* LF */ true,   true, true,   true,    true,   true,  true,      true,       true,   true,   true,   true,  true,  true,
-    /* Control */ true,   true, true,   true,    true,   true,  true,      true,       true,   true,   true,   true,  true,  true,
-     /* Extend */ true,   true, true,   true,    false,  true,  true,      false,      true,   true,   true,   true,  true,  false,
-         /* RI */ true,   true, true,   true,    false,  false, true,      false,      true,   true,   true,   true,  true,  false,
-    /* Prepend */ false,  true, true,   true,    false,  false, false,     false,      false,  false,  false,  false, false, false,
-/* SpacingMark */ true,   true, true,   true,    false,  true,  true,      false,      true,   true,   true,   true,  true,  false,
-          /* L */ true,   true, true,   true,    false,  true,  true,      false,      false,  false,  true,   false, false, false,
-          /* V */ true,   true, true,   true,    false,  true,  true,      false,      true,   false,  false,  true,  true,  false,
-          /* T */ true,   true, true,   true,    false,  true,  true,      false,      true,   true,   false,  true,  true,  false,
-         /* LV */ true,   true, true,   true,    false,  true,  true,      false,      true,   false,  false,  true,  true,  false,
-        /* LVT */ true,   true, true,   true,    false,  true,  true,      false,      true,   true,   false,  true,  true,  false,
-        /* ZWJ */ true,   true, true,   true,    false,  true,  true,      false,      true,   true,   true,   true,  true,  false
+bool has_break(const grapheme_cluster_break& previous,
+               const grapheme_cluster_break& current) {
+  auto contains_prop = [](const std::vector<auc::detail::property>& props,
+                          auc::detail::property prop) {
+    return (std::find(props.begin(), props.end(), prop) != props.end());
   };
 
-  return break_chart[static_cast<int>(b1.prop_)][static_cast<int>(b2.prop_)];
-}
+  // https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
+  // Break at the start and end of text, unless the text is empty.
+  // GB1/GB2 are handled implicitly
 
-// Specialized RI break rules (can only have 2 in a cluster bfore
-// we must break)
-void handle_regionalindicator_breaks(std::vector<graphemecluster>& clusters) {
-  // TODO
+  // Do not break between a CR and LF. Otherwise, break before and after
+  // controls.
+  if (previous.prop_ == auc::detail::property::CR &&
+      current.prop_ == auc::detail::property::LF) {
+    // GB3
+    return false;
+  } else if (contains_prop(
+                 {auc::detail::property::Control, auc::detail::property::CR,
+                  auc::detail::property::LF},
+                 previous.prop_)) {
+    // GB4
+    return true;
+  } else if (contains_prop(
+                 {auc::detail::property::Control, auc::detail::property::CR,
+                  auc::detail::property::LF},
+                 current.prop_)) {
+    // GB5
+    return true;
+  }
+  // Do not break Hangul syllable sequences.
+  else if (previous.prop_ == auc::detail::property::L &&
+           contains_prop(
+               {auc::detail::property::L, auc::detail::property::V,
+                auc::detail::property::LV, auc::detail::property::LVT},
+               current.prop_)) {
+    // GB6
+    return false;
+  } else if (contains_prop(
+                 {auc::detail::property::LV, auc::detail::property::V},
+                 previous.prop_) &&
+             contains_prop({auc::detail::property::V, auc::detail::property::T},
+                           current.prop_)) {
+    // GB7
+    return false;
+  } else if (contains_prop(
+                 {auc::detail::property::LVT, auc::detail::property::T},
+                 previous.prop_) &&
+             current.prop_ == auc::detail::property::T) {
+    // GB8
+    return false;
+  }
+  // Do not break before extending characters or ZWJ.
+  else if (contains_prop(
+               {auc::detail::property::Extend, auc::detail::property::ZWJ},
+               current.prop_)) {
+    // GB9
+    return false;
+  }
+  // NOTE: Currently we always assume we support extended grapheme clusters over
+  // legacy grapheme clusters Do not break before SpacingMarks, or after Prepend
+  // characters.
+  else if (current.prop_ == auc::detail::property::SpacingMark) {
+    // GB9a
+    return false;
+  } else if (previous.prop_ == auc::detail::property::Prepend) {
+    // GB9b
+    return false;
+  }
+  // TODO: Support these rules once we parse emoji data to include ExtPict break
+  // property in our lookup table Do not break within emoji modifier sequences
+  // or emoji zwj sequences. GB11
+
+  // TODO: Need to specially handle RI's to ensure we break after seeing 2
+  // instances of RI in a row Do not break within emoji flag sequences. That is,
+  // do not break between regional indicator (RI) symbols if there is an odd
+  // number of RI characters before the break point. GB12 GB13
+
+  // Otherwise, break everywhere.
+  else {
+    // GB999
+    return true;
+  }
 }
 
 std::vector<graphemecluster> build_grapheme_clusters(
     const std::vector<u8char>& chars) {
-
   std::vector<graphemecluster> grapheme_clusters;
 
   const std::vector<grapheme_cluster_break> breaks = get_char_breaks(chars);
@@ -95,6 +150,10 @@ std::vector<graphemecluster> build_grapheme_clusters(
     const grapheme_cluster_break& current_break = breaks[current_break_idx];
 
     cluster.push_back(chars[previous_break_idx]);
+
+    // TODO: count RI's in the cluster. we need to break to ensure we don't end
+    // up with an odd number > 2 in a cluster
+
     if (has_break(previous_break, current_break)) {
       grapheme_clusters.push_back(graphemecluster{cluster});
       cluster.clear();
@@ -104,10 +163,6 @@ std::vector<graphemecluster> build_grapheme_clusters(
     }
   }
 
-  // TODO: remove this and handle RI's within the above break checking for
-  // simplicity (may need to do double break lookback instead of single lookback
-  // to satisfy the case where more than 2 consecutive RI's require a break
-  handle_regionalindicator_breaks(grapheme_clusters);
   return grapheme_clusters;
 }
 
