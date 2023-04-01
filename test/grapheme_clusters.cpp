@@ -1,12 +1,13 @@
 #include <gtest/gtest.h>
-
 #include <auc/u8text.hpp>
+#include "graphemebreaktest_data.hpp"
 
 // TODO: validate all samples from:
 // https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.html#samples
 
 // TODO: Properly test all scnaerios from:
 // https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.txt
+// via gtest TEST_P on data structure generated from python script parsing the above file
 
 TEST(grapheme_clusters, sample1) {
   char utf8_chars[] = u8"\u000D\u000A\u0061\u000A\u0308";

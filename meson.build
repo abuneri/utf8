@@ -25,6 +25,7 @@ test_srcs = [
     'test/decoding_codepoint.cpp',
     'test/encoding_codepoint.cpp',
     'test/parse_bom.cpp',
+    'test/graphemebreaktest_data.hpp',
     'test/grapheme_clusters.cpp'
 ]
 test = executable(
