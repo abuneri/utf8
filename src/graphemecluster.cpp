@@ -87,49 +87,26 @@ std::vector<graphemecluster> build_grapheme_clusters(
     return grapheme_clusters;
   }
 
-  // TODO: Do a cleaner algorithm for building up grapheme clusters
+  std::vector<u8char> cluster;
+  for (std::size_t current_break_idx = 1u; current_break_idx < breaks.size();
+       ++current_break_idx) {
+    const std::size_t previous_break_idx = current_break_idx - 1u;
+    const grapheme_cluster_break& previous_break = breaks[previous_break_idx];
+    const grapheme_cluster_break& current_break = breaks[current_break_idx];
 
-  std::size_t grapheme_start = 0u;
-  std::size_t grapheme_end = 1u;
-
-  const std::size_t num_breaks = breaks.size();
-  while (grapheme_end < num_breaks) {
-    std::size_t temp_grapheme_start = grapheme_start;
-    std::size_t temp_grapheme_end = grapheme_end;
-
-    bool clustering = true;
-    while (clustering && temp_grapheme_end < num_breaks) {
-      const grapheme_cluster_break b1 = breaks[temp_grapheme_start];
-      const grapheme_cluster_break b2 = breaks[temp_grapheme_end];
-
-      clustering = !has_break(b1, b2);
-      ++temp_grapheme_start;
-      ++temp_grapheme_end;
+    cluster.push_back(chars[previous_break_idx]);
+    if (has_break(previous_break, current_break)) {
+      grapheme_clusters.push_back(graphemecluster{cluster});
+      cluster.clear();
     }
-
-    grapheme_end = temp_grapheme_start;
-
-    const std::size_t num_cluster_chars = grapheme_end - grapheme_start;
-    graphemecluster cluster;
-    cluster.chars_.reserve(num_cluster_chars);
-
-    for (std::size_t char_idx = grapheme_start; char_idx < grapheme_end;
-         ++char_idx) {
-      cluster.chars_.push_back(chars[char_idx]);
+    if (current_break_idx + 1u == breaks.size()) {
+      grapheme_clusters.push_back(graphemecluster{{chars.back()}});
     }
-
-    grapheme_clusters.push_back(cluster);
-
-    grapheme_start = grapheme_end;
-
-    // Last character is a a single cluster, add that as incrementing again will
-    // breka the loop
-    if (num_cluster_chars > 0u && grapheme_start == breaks.size() - 1) {
-      grapheme_clusters.push_back(graphemecluster{{chars[grapheme_end]}});
-    }
-    ++grapheme_end;
   }
 
+  // TODO: remove this and handle RI's within the above break checking for
+  // simplicity (may need to do double break lookback instead of single lookback
+  // to satisfy the case where more than 2 consecutive RI's require a break
   handle_regionalindicator_breaks(grapheme_clusters);
   return grapheme_clusters;
 }
