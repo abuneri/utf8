@@ -22,4 +22,8 @@ class codepoint {
   std::uint32_t num_ = 0;
 };
 
+inline bool operator==(const codepoint& c1, const codepoint& c2) {
+  return (c1.get_num() == c2.get_num());
+}
+
 }  // namespace auc

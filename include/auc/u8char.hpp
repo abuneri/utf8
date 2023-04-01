@@ -56,7 +56,7 @@ class u8char {
   }
 
  private:
-  explicit u8char(const std::vector<char>& encoded_bytes,
+  explicit u8char(codepoint cp, const std::vector<char>& encoded_bytes,
                   const bool valid_encoding);
 
   bool valid_encoding_{false};

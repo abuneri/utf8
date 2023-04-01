@@ -322,9 +322,11 @@ u8char::u8char(std::string_view bytes) {
   }
 }
 
-u8char::u8char(const std::vector<char>& encoded_bytes,
+u8char::u8char(codepoint cp, const std::vector<char>& encoded_bytes,
                const bool valid_encoding)
-    : encoded_storage_(encoded_bytes), valid_encoding_(valid_encoding) {}
+    : codepoint_{cp},
+      encoded_storage_(encoded_bytes),
+      valid_encoding_(valid_encoding) {}
 
 u8char u8char::from_codepoint(codepoint cp) {
   bool valid = true;
@@ -337,7 +339,7 @@ u8char u8char::from_codepoint(codepoint cp) {
     valid = !detail::is_extended_ascii(encoded_bytes[0]);
   }
 
-  return u8char(encoded_bytes, valid);
+  return u8char(cp, encoded_bytes, valid);
 }
 
 bool u8char::is_valid() const { return valid_encoding_; }
