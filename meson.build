@@ -6,6 +6,7 @@ lib_srcs = [
     'src/property.hpp',
     'src/graphemecluster.cpp',
     'src/graphemebreakproperty_lookup.hpp',
+    'src/emojiproperty_lookup.hpp',
     'include/auc/u8char.hpp',
     'src/u8char.cpp',
     'include/auc/u8text.hpp',

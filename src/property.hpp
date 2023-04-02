@@ -20,9 +20,10 @@ enum class property : int {
   ZWJ = 13,
   Emoji = 14,
   Emoji_Pres = 15,
-  Emoji_Mod_Base = 16,
-  Emoji_Comp = 17,
-  Ext_Pict = 18
+  Emoji_Mod = 16,
+  Emoji_Mod_Base = 17,
+  Emoji_Comp = 18,
+  Ext_Pict = 19
 };
 
 }  // namespace detail

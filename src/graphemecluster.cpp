@@ -1,5 +1,6 @@
 #include <auc/graphemecluster.hpp>
 #include "graphemebreakproperty_lookup.hpp"
+#include "emojiproperty_lookup.hpp"
 
 #include <tuple>
 #include <algorithm>
