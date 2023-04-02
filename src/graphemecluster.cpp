@@ -29,8 +29,8 @@ std::vector<grapheme_cluster_break> get_char_breaks(
 
 bool has_break(const grapheme_cluster_break& previous,
                const grapheme_cluster_break& current) {
-  auto contains_prop = [](const std::vector<auc::detail::property>& props,
-                          auc::detail::property prop) {
+  auto contains_prop = [](const std::vector<property>& props,
+                          property prop) {
     return (std::find(props.begin(), props.end(), prop) != props.end());
   };
 
@@ -40,49 +40,36 @@ bool has_break(const grapheme_cluster_break& previous,
 
   // Do not break between a CR and LF. Otherwise, break before and after
   // controls.
-  if (previous.prop_ == auc::detail::property::CR &&
-      current.prop_ == auc::detail::property::LF) {
+  if (previous.prop_ == property::CR && current.prop_ == property::LF) {
     // GB3
     return false;
-  } else if (contains_prop(
-                 {auc::detail::property::Control, auc::detail::property::CR,
-                  auc::detail::property::LF},
-                 previous.prop_)) {
+  } else if (contains_prop({property::Control, property::CR, property::LF},
+                           previous.prop_)) {
     // GB4
     return true;
-  } else if (contains_prop(
-                 {auc::detail::property::Control, auc::detail::property::CR,
-                  auc::detail::property::LF},
-                 current.prop_)) {
+  } else if (contains_prop({property::Control, property::CR, property::LF},
+                           current.prop_)) {
     // GB5
     return true;
   }
   // Do not break Hangul syllable sequences.
-  else if (previous.prop_ == auc::detail::property::L &&
+  else if (previous.prop_ == property::L &&
            contains_prop(
-               {auc::detail::property::L, auc::detail::property::V,
-                auc::detail::property::LV, auc::detail::property::LVT},
+               {property::L, property::V, property::LV, property::LVT},
                current.prop_)) {
     // GB6
     return false;
-  } else if (contains_prop(
-                 {auc::detail::property::LV, auc::detail::property::V},
-                 previous.prop_) &&
-             contains_prop({auc::detail::property::V, auc::detail::property::T},
-                           current.prop_)) {
+  } else if (contains_prop({property::LV, property::V}, previous.prop_) &&
+             contains_prop({property::V, property::T}, current.prop_)) {
     // GB7
     return false;
-  } else if (contains_prop(
-                 {auc::detail::property::LVT, auc::detail::property::T},
-                 previous.prop_) &&
-             current.prop_ == auc::detail::property::T) {
+  } else if (contains_prop({property::LVT, property::T}, previous.prop_) &&
+             current.prop_ == property::T) {
     // GB8
     return false;
   }
   // Do not break before extending characters or ZWJ.
-  else if (contains_prop(
-               {auc::detail::property::Extend, auc::detail::property::ZWJ},
-               current.prop_)) {
+  else if (contains_prop({property::Extend, property::ZWJ}, current.prop_)) {
     // GB9
     return false;
   }
@@ -90,10 +77,10 @@ bool has_break(const grapheme_cluster_break& previous,
   // legacy grapheme clusters
 
   // Do not break before SpacingMarks, or after Prepend characters.
-  else if (current.prop_ == auc::detail::property::SpacingMark) {
+  else if (current.prop_ == property::SpacingMark) {
     // GB9a
     return false;
-  } else if (previous.prop_ == auc::detail::property::Prepend) {
+  } else if (previous.prop_ == property::Prepend) {
     // GB9b
     return false;
   }
