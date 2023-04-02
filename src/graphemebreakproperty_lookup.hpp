@@ -5,26 +5,11 @@
 
 #include <auc/codepoint.hpp>
 
+#include "property.hpp"
+
 // https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakProperty.txt
 namespace auc {
 namespace detail {
-
-enum class property : int {
-   Other = 0,
-   CR = 1,
-   LF = 2,
-   Control = 3,
-   Extend = 4,
-   RI = 5,
-   Prepend = 6,
-   SpacingMark = 7,
-   L = 8,
-   V = 9,
-   T = 10,
-   LV = 11,
-   LVT = 12,
-   ZWJ = 13
-};
 
 struct grapheme_cluster_break {
    codepoint codepoint_{0};

@@ -1,47 +1,10 @@
-PROP_CPP_CONV = {
-    'CR': 'property::CR',
-    'LF': 'property::LF',
-    'Control': 'property::Control',
-    'Extend': 'property::Extend',
-    'Regional_Indicator': 'property::RI',
-    'Prepend': 'property::Prepend',
-    'SpacingMark': 'property::SpacingMark',
-    'L': 'property::L',
-    'V': 'property::V',
-    'T': 'property::T',
-    'LV': 'property::LV',
-    'LVT': 'property::LVT',
-    'ZWJ': 'property::ZWJ'
-}
+from ucd_parsing_utils import codepoint_range, PROP_CPP_CONV
 
 
 class GraphemeBreakProperty:
     def __init__(self, codepoint, prop_type):
         self.codepoint = codepoint
         self.prop_type = PROP_CPP_CONV[prop_type]
-
-
-def codepoint_range(codepoint):
-    if '..' in codepoint:
-        start = 0
-        end = 0
-
-        if len(codepoint) == 10:
-            # U+XXXX
-            start = int(codepoint[0:4], base=16)
-            end = int(codepoint[6:10], base=16)
-        elif len(codepoint) == 12:
-            # U+XXXXX
-            start = int(codepoint[0:5], base=16)
-            end = int(codepoint[7:12], base=16)
-
-        if start == end or start > end:
-            return None
-
-        return [cp for cp in range(start, end + 1)]
-    else:
-        return [int(codepoint, base=16)]
-
 
 def get_properties():
     props = []
@@ -77,26 +40,11 @@ def get_cpp_unordermap_data(props):
         '#pragma once\n\n' \
         '#include <unordered_map>\n\n' \
         '#include <auc/codepoint.hpp>\n\n' \
+        '#include "property.hpp"\n\n' \
         '// https://www.unicode.org/' \
         'Public/15.0.0/ucd/auxiliary/GraphemeBreakProperty.txt\n'\
         'namespace auc {\n' \
         'namespace detail {\n\n' \
-        'enum class property : int {\n' \
-        '   Other = 0,\n' \
-        '   CR = 1,\n' \
-        '   LF = 2,\n' \
-        '   Control = 3,\n' \
-        '   Extend = 4,\n' \
-        '   RI = 5,\n' \
-        '   Prepend = 6,\n' \
-        '   SpacingMark = 7,\n' \
-        '   L = 8,\n' \
-        '   V = 9,\n' \
-        '   T = 10,\n' \
-        '   LV = 11,\n' \
-        '   LVT = 12,\n' \
-        '   ZWJ = 13\n' \
-        '};\n\n' \
         'struct grapheme_cluster_break {\n' \
         '   codepoint codepoint_{0};\n'\
         '   property prop_{property::Other};\n' \
