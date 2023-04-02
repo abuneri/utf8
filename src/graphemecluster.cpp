@@ -86,8 +86,9 @@ bool has_break(const grapheme_cluster_break& previous,
     return false;
   }
   // NOTE: Currently we always assume we support extended grapheme clusters over
-  // legacy grapheme clusters Do not break before SpacingMarks, or after Prepend
-  // characters.
+  // legacy grapheme clusters
+
+  // Do not break before SpacingMarks, or after Prepend characters.
   else if (current.prop_ == auc::detail::property::SpacingMark) {
     // GB9a
     return false;
