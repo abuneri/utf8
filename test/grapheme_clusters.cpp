@@ -238,26 +238,31 @@ TEST(grapheme_clusters, sample8) {
                       {auc::codepoint{0x0062u}}});
  }
 
-// TODO: SpacingMark tests
-//TEST(grapheme_clusters, sample15) {
-//  char utf8_chars[] = u8"";
-//  auc::u8text utf8_text(utf8_chars);
-//
-//  const std::vector<auc::graphemecluster> clusters =
-//      utf8_text.get_grapheme_clusters();
-//  ASSERT_EQ(1u, clusters.size());
-//}
+TEST(grapheme_clusters, sample15) {
+  char utf8_chars[] = u8"\u0061\u0903\u0062";
+  auc::u8text utf8_text(utf8_chars);
 
- // TODO: Fix prepend bug
-//TEST(grapheme_clusters, sample16) {
+  const std::vector<auc::graphemecluster> clusters =
+      utf8_text.get_grapheme_clusters();
+  ASSERT_EQ(2u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x0061u}, auc::codepoint{0x0903u}},
+                     {auc::codepoint{0x0062u}}});
+}
+
+// TODO: Fix Prepend bug
+// TEST(grapheme_clusters, sample16) {
 //  char utf8_chars[] = u8"\u0061\u0600\u0062";
 //  auc::u8text utf8_text(utf8_chars);
 //
 //  const std::vector<auc::graphemecluster> clusters =
 //      utf8_text.get_grapheme_clusters();
 //  ASSERT_EQ(2u, clusters.size());
+//  validate_clusters(clusters,
+//                    {{auc::codepoint{0x0061u}},
+//                     {auc::codepoint{0x0600u}, auc::codepoint{0x0061u}}});
 //}
-
+//
 // TODO: Support ExtPict grapheme break property
 // TEST(grapheme_clusters, sample17) {
 //   char utf8_chars[] = u8"\U0001F476\U0001F3FF";
@@ -312,7 +317,8 @@ TEST(grapheme_clusters, sample8) {
 //       utf8_text.get_grapheme_clusters();
 //   ASSERT_EQ(1u, clusters.size());
 // }
-//
+
+// TODO: Fix Other bugs
 // TEST(grapheme_clusters, sample23) {
 //  char utf8_chars[] = u8"\u2701\u200D\u2701";
 //  auc::u8text utf8_text(utf8_chars);
@@ -321,7 +327,7 @@ TEST(grapheme_clusters, sample8) {
 //      utf8_text.get_grapheme_clusters();
 //  ASSERT_EQ(1u, clusters.size());
 //}
-//
+////
 // TEST(grapheme_clusters, sample24) {
 //   char utf8_chars[] = u8"";
 //   auc::u8text utf8_text(utf8_chars);
