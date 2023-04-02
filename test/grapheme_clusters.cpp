@@ -13,6 +13,21 @@ class GraphemeBreakTest
     : public testing::TestWithParam<auc::detail::grapheme_cluster_break_test> {
 };
 
+void validate_clusters(
+    const std::vector<auc::graphemecluster>& clusters,
+    const std::vector<std::vector<auc::codepoint>>& expected_clusters) {
+  std::vector<std::vector<auc::codepoint>> actual_clusters;
+  for (const auto& cluster : clusters) {
+    std::vector<auc::codepoint> codepoints;
+    for (const auto& u8char : cluster.chars_) {
+      codepoints.push_back(u8char.get_codepoint());
+    }
+    actual_clusters.push_back(codepoints);
+  }
+
+  EXPECT_EQ(expected_clusters, actual_clusters);
+}
+
 TEST_P(GraphemeBreakTest, Clusters) {
   // Inside a test, access the test parameter with the GetParam() method
   // of the TestWithParam<T> class:
@@ -33,7 +48,8 @@ TEST_P(GraphemeBreakTest, Clusters) {
   }
 
   const auto& expected_clusters = test.clusters_;
-  EXPECT_EQ(expected_clusters, actual_clusters);
+  ASSERT_EQ(expected_clusters.size(), clusters.size());
+  validate_clusters(clusters, expected_clusters);
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -52,6 +68,11 @@ TEST(grapheme_clusters, sample1) {
   const std::vector<auc::graphemecluster> clusters =
       utf8_text.get_grapheme_clusters();
   ASSERT_EQ(4u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x000Du}, auc::codepoint{0x000Au}},
+                     {auc::codepoint{0x0061u}},
+                     {auc::codepoint{0x000Au}},
+                     {auc::codepoint{0x0308u}}});
 }
 
 TEST(grapheme_clusters, sample2) {
@@ -61,6 +82,8 @@ TEST(grapheme_clusters, sample2) {
   const std::vector<auc::graphemecluster> clusters =
       utf8_text.get_grapheme_clusters();
   ASSERT_EQ(1u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x0061u}, auc::codepoint{0x0308u}}});
 }
 
 TEST(grapheme_clusters, sample3) {
@@ -70,6 +93,9 @@ TEST(grapheme_clusters, sample3) {
   const std::vector<auc::graphemecluster> clusters =
       utf8_text.get_grapheme_clusters();
   ASSERT_EQ(2u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x0020u}, auc::codepoint{0x200Du}},
+                     {auc::codepoint{0x0646u}}});
 }
 
 TEST(grapheme_clusters, sample4) {
@@ -79,6 +105,9 @@ TEST(grapheme_clusters, sample4) {
   const std::vector<auc::graphemecluster> clusters =
       utf8_text.get_grapheme_clusters();
   ASSERT_EQ(2u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x0646u}, auc::codepoint{0x200Du}},
+                     {auc::codepoint{0x0020u}}});
 }
 
 TEST(grapheme_clusters, sample5) {
@@ -88,6 +117,8 @@ TEST(grapheme_clusters, sample5) {
   const std::vector<auc::graphemecluster> clusters =
       utf8_text.get_grapheme_clusters();
   ASSERT_EQ(1u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x1100u}, auc::codepoint{0x1100u}}});
 }
 
 TEST(grapheme_clusters, sample6) {
@@ -97,6 +128,9 @@ TEST(grapheme_clusters, sample6) {
   const std::vector<auc::graphemecluster> clusters =
       utf8_text.get_grapheme_clusters();
   ASSERT_EQ(2u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0xAC00u}, auc::codepoint{0x11A8u}},
+                     {auc::codepoint{0x1100u}}});
 }
 
 TEST(grapheme_clusters, sample7) {
@@ -106,6 +140,9 @@ TEST(grapheme_clusters, sample7) {
   const std::vector<auc::graphemecluster> clusters =
       utf8_text.get_grapheme_clusters();
   ASSERT_EQ(2u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0xAC01u}, auc::codepoint{0x11A8u}},
+                     {auc::codepoint{0x1100u}}});
 }
 
 TEST(grapheme_clusters, sample8) {
@@ -115,6 +152,10 @@ TEST(grapheme_clusters, sample8) {
   const std::vector<auc::graphemecluster> clusters =
       utf8_text.get_grapheme_clusters();
   ASSERT_EQ(3u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x1F1E6u}, auc::codepoint{0x1F1E7u}},
+                     {auc::codepoint{0x1F1E8u}},
+                     {auc::codepoint{0x0062u}}});
 }
 
  TEST(grapheme_clusters, sample9) {
@@ -124,6 +165,11 @@ TEST(grapheme_clusters, sample8) {
    const std::vector<auc::graphemecluster> clusters =
        utf8_text.get_grapheme_clusters();
    ASSERT_EQ(4u, clusters.size());
+   validate_clusters(clusters,
+                     {{auc::codepoint{0x0061u}},
+                      {auc::codepoint{0x1F1E6u}, auc::codepoint{0x1F1E7u}},
+                      {auc::codepoint{0x1F1E8u}},
+                      {auc::codepoint{0x0062u}}});
  }
 
  TEST(grapheme_clusters, sample10) {
@@ -133,6 +179,12 @@ TEST(grapheme_clusters, sample8) {
    const std::vector<auc::graphemecluster> clusters =
        utf8_text.get_grapheme_clusters();
    ASSERT_EQ(4u, clusters.size());
+   validate_clusters(clusters,
+                     {{auc::codepoint{0x0061u}},
+                      {auc::codepoint{0x1F1E6u}, auc::codepoint{0x1F1E7u},
+                       auc::codepoint{0x200Du}},
+                      {auc::codepoint{0x1F1E8u}},
+                      {auc::codepoint{0x0062u}}});
  }
 
  TEST(grapheme_clusters, sample11) {
@@ -142,6 +194,11 @@ TEST(grapheme_clusters, sample8) {
    const std::vector<auc::graphemecluster> clusters =
        utf8_text.get_grapheme_clusters();
    ASSERT_EQ(4u, clusters.size());
+   validate_clusters(clusters,
+                     {{auc::codepoint{0x0061u}},
+                      {auc::codepoint{0x1F1E6u}, auc::codepoint{0x200Du}},
+                      {auc::codepoint{0x1F1E7u}, auc::codepoint{0x1F1E8u}},
+                      {auc::codepoint{0x0062u}}});
  }
 
  TEST(grapheme_clusters, sample12) {
@@ -151,6 +208,11 @@ TEST(grapheme_clusters, sample8) {
    const std::vector<auc::graphemecluster> clusters =
        utf8_text.get_grapheme_clusters();
    ASSERT_EQ(4u, clusters.size());
+   validate_clusters(clusters,
+                     {{auc::codepoint{0x0061u}},
+                      {auc::codepoint{0x1F1E6u}, auc::codepoint{0x1F1E7u}},
+                      {auc::codepoint{0x1F1E8u}, auc::codepoint{0x1F1E9u}},
+                      {auc::codepoint{0x0062u}}});
  }
 
  TEST(grapheme_clusters, sample13) {
@@ -160,6 +222,8 @@ TEST(grapheme_clusters, sample8) {
    const std::vector<auc::graphemecluster> clusters =
        utf8_text.get_grapheme_clusters();
    ASSERT_EQ(1u, clusters.size());
+   validate_clusters(clusters,
+                     {{auc::codepoint{0x0061u}, auc::codepoint{0x200Du}}});
  }
 
  TEST(grapheme_clusters, sample14) {
@@ -169,7 +233,10 @@ TEST(grapheme_clusters, sample8) {
    const std::vector<auc::graphemecluster> clusters =
        utf8_text.get_grapheme_clusters();
    ASSERT_EQ(2u, clusters.size());
-}
+   validate_clusters(clusters,
+                     {{auc::codepoint{0x0061u}, auc::codepoint{0x0308u}},
+                      {auc::codepoint{0x0062u}}});
+ }
 
 // TODO: SpacingMark tests
 //TEST(grapheme_clusters, sample15) {
