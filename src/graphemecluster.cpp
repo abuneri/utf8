@@ -27,11 +27,34 @@ std::vector<grapheme_cluster_break> get_char_breaks(
   return breaks;
 }
 
-bool has_break(const grapheme_cluster_break& previous,
+bool has_break(const std::vector<u8char>& current_cluster,
+               const grapheme_cluster_break& previous,
                const grapheme_cluster_break& current) {
-  auto contains_prop = [](const std::vector<property>& props,
-                          property prop) {
+  auto contains_prop = [](const std::vector<property>& props, property prop) {
     return (std::find(props.begin(), props.end(), prop) != props.end());
+  };
+
+  // TODO: use for GB11
+  auto is_extpict_prop = [](const codepoint& cp) {
+    auto itr = codepoint_emoji_lookup.find(cp);
+    if (itr != codepoint_emoji_lookup.end()) {
+      return (itr->second == property::Ext_Pict);
+    }
+    return false;
+  };
+
+  auto num_current_regind_props = [&current_cluster]() {
+    auto is_regind_prop = [](const codepoint& cp) {
+      auto itr = codepoint_break_lookup.find(cp.get_num());
+      if (itr != codepoint_break_lookup.end()) {
+        return (itr->second.prop_ == property::RI);
+      }
+      return false;
+    };
+    return std::count_if(current_cluster.begin(), current_cluster.end(),
+                         [&is_regind_prop](const u8char& c) {
+                           return is_regind_prop(c.get_codepoint());
+                         });
   };
 
   // https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
@@ -88,11 +111,13 @@ bool has_break(const grapheme_cluster_break& previous,
   // property in our lookup table Do not break within emoji modifier sequences
   // or emoji zwj sequences. GB11
 
-  // TODO: Need to specially handle RI's to ensure we break after seeing 2
-  // instances of RI in a row Do not break within emoji flag sequences. That is,
-  // do not break between regional indicator (RI) symbols if there is an odd
-  // number of RI characters before the break point. GB12 GB13
-
+  // Do not break within emoji flag sequences. That is, do not break between
+  // regional indicator (RI) symbols if there is an odd number of RI characters
+  // before the break point.
+  else if (previous.prop_ == property::RI && current.prop_ == property::RI) {
+    // GB12 and GB13
+    return !(num_current_regind_props() <= 1);
+  }
   // Otherwise, break everywhere.
   else {
     // GB999
@@ -102,6 +127,7 @@ bool has_break(const grapheme_cluster_break& previous,
 
 std::vector<graphemecluster> build_grapheme_clusters(
     const std::vector<u8char>& chars) {
+  std::vector<u8char> cluster;
   std::vector<graphemecluster> grapheme_clusters;
 
   const std::vector<grapheme_cluster_break> breaks = get_char_breaks(chars);
@@ -113,7 +139,7 @@ std::vector<graphemecluster> build_grapheme_clusters(
     grapheme_clusters.push_back(graphemecluster{chars});
     return grapheme_clusters;
   } else if (breaks.size() == 2u) {
-    if (has_break(breaks[0], breaks[1])) {
+    if (has_break(cluster, breaks[0], breaks[1])) {
       grapheme_clusters.push_back(graphemecluster{{chars[0]}});
       grapheme_clusters.push_back(graphemecluster{{chars[1]}});
     } else {
@@ -122,7 +148,6 @@ std::vector<graphemecluster> build_grapheme_clusters(
     return grapheme_clusters;
   }
 
-  std::vector<u8char> cluster;
   for (std::size_t current_break_idx = 1u; current_break_idx < breaks.size();
        ++current_break_idx) {
     const std::size_t previous_break_idx = current_break_idx - 1u;
@@ -134,7 +159,7 @@ std::vector<graphemecluster> build_grapheme_clusters(
     // TODO: count RI's in the cluster. we need to break to ensure we don't end
     // up with an odd number > 2 in a cluster
 
-    if (has_break(previous_break, current_break)) {
+    if (has_break(cluster, previous_break, current_break)) {
       grapheme_clusters.push_back(graphemecluster{cluster});
       cluster.clear();
     }

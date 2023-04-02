@@ -108,51 +108,50 @@ TEST(grapheme_clusters, sample7) {
   ASSERT_EQ(2u, clusters.size());
 }
 
-// TODO: Support specialized regional indicator behaviour
-//TEST(grapheme_clusters, sample8) {
-//  char utf8_chars[] = u8"\U0001F1E6\U0001F1E7\U0001F1E8\u0062";
-//  auc::u8text utf8_text(utf8_chars);
-//
-//  const std::vector<auc::graphemecluster> clusters =
-//      utf8_text.get_grapheme_clusters();
-//  ASSERT_EQ(3u, clusters.size());
-//}
-//
-// TEST(grapheme_clusters, sample9) {
-//   char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\U0001F1E8\u0062";
-//   auc::u8text utf8_text(utf8_chars);
-//
-//   const std::vector<auc::graphemecluster> clusters =
-//       utf8_text.get_grapheme_clusters();
-//   ASSERT_EQ(1u, clusters.size());
-// }
-//
-// TEST(grapheme_clusters, sample10) {
-//   char utf8_chars[] = u8"";
-//   auc::u8text utf8_text(utf8_chars);
-//
-//   const std::vector<auc::graphemecluster> clusters =
-//       utf8_text.get_grapheme_clusters();
-//   ASSERT_EQ(1u, clusters.size());
-// }
-//
-// TEST(grapheme_clusters, sample11) {
-//   char utf8_chars[] = u8"";
-//   auc::u8text utf8_text(utf8_chars);
-//
-//   const std::vector<auc::graphemecluster> clusters =
-//       utf8_text.get_grapheme_clusters();
-//   ASSERT_EQ(1u, clusters.size());
-// }
-//
-// TEST(grapheme_clusters, sample12) {
-//   char utf8_chars[] = u8"";
-//   auc::u8text utf8_text(utf8_chars);
-//
-//   const std::vector<auc::graphemecluster> clusters =
-//       utf8_text.get_grapheme_clusters();
-//   ASSERT_EQ(1u, clusters.size());
-// }
+TEST(grapheme_clusters, sample8) {
+  char utf8_chars[] = u8"\U0001F1E6\U0001F1E7\U0001F1E8\u0062";
+  auc::u8text utf8_text(utf8_chars);
+
+  const std::vector<auc::graphemecluster> clusters =
+      utf8_text.get_grapheme_clusters();
+  ASSERT_EQ(3u, clusters.size());
+}
+
+ TEST(grapheme_clusters, sample9) {
+   char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\U0001F1E8\u0062";
+   auc::u8text utf8_text(utf8_chars);
+
+   const std::vector<auc::graphemecluster> clusters =
+       utf8_text.get_grapheme_clusters();
+   ASSERT_EQ(4u, clusters.size());
+ }
+
+ TEST(grapheme_clusters, sample10) {
+   char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\u200D\U0001F1E8\u0062";
+   auc::u8text utf8_text(utf8_chars);
+
+   const std::vector<auc::graphemecluster> clusters =
+       utf8_text.get_grapheme_clusters();
+   ASSERT_EQ(4u, clusters.size());
+ }
+
+ TEST(grapheme_clusters, sample11) {
+   char utf8_chars[] = u8"\u0061\U0001F1E6\u200D\U0001F1E7\U0001F1E8\u0062";
+   auc::u8text utf8_text(utf8_chars);
+
+   const std::vector<auc::graphemecluster> clusters =
+       utf8_text.get_grapheme_clusters();
+   ASSERT_EQ(4u, clusters.size());
+ }
+
+ TEST(grapheme_clusters, sample12) {
+   char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\U0001F1E8\U0001F1E9\u0062";
+   auc::u8text utf8_text(utf8_chars);
+
+   const std::vector<auc::graphemecluster> clusters =
+       utf8_text.get_grapheme_clusters();
+   ASSERT_EQ(4u, clusters.size());
+ }
 
  TEST(grapheme_clusters, sample13) {
    char utf8_chars[] = u8"\u0061\u200D";
