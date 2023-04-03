@@ -155,10 +155,6 @@ std::vector<graphemecluster> build_grapheme_clusters(
     const grapheme_cluster_break& current_break = breaks[current_break_idx];
 
     cluster.push_back(chars[previous_break_idx]);
-
-    // TODO: count RI's in the cluster. we need to break to ensure we don't end
-    // up with an odd number > 2 in a cluster
-
     if (has_break(cluster, previous_break, current_break)) {
       grapheme_clusters.push_back(graphemecluster{cluster});
       cluster.clear();
