@@ -1,9 +1,8 @@
 #include <gtest/gtest.h>
-#include <auc/u8text.hpp>
-#include "graphemebreaktest_data.hpp"
 
-// Test all scenarios from:
-// https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.txt
+#include <auc/u8text.hpp>
+
+#include "graphemebreaktest_data.hpp"
 
 void PrintTo(const auc::codepoint& codepoint, ::std::ostream* os) {
   *os << codepoint.get_num();
@@ -28,9 +27,11 @@ void validate_clusters(
   EXPECT_EQ(expected_clusters, actual_clusters);
 }
 
+//=========================================================================
+// Test all scenarios from:
+// https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.txt
+//=========================================================================
 TEST_P(GraphemeBreakTest, Clusters) {
-  // Inside a test, access the test parameter with the GetParam() method
-  // of the TestWithParam<T> class:
   const auc::detail::grapheme_cluster_break_test& test = GetParam();
 
   const auto utf8 = auc::u8text::from_codepoints(test.codepoints_);
@@ -44,7 +45,7 @@ TEST_P(GraphemeBreakTest, Clusters) {
     for (const auto& u8char : cluster.chars_) {
       codepoints.push_back(u8char.get_codepoint());
     }
-   actual_clusters.push_back(codepoints);
+    actual_clusters.push_back(codepoints);
   }
 
   const auto& expected_clusters = test.clusters_;
@@ -58,9 +59,10 @@ INSTANTIATE_TEST_SUITE_P(
     [](const ::testing::TestParamInfo<auc::detail::grapheme_cluster_break_test>&
            info) { return info.param.name_; });
 
-
+//=========================================================================
 // Test all samples from:
 // https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.html#samples
+//=========================================================================
 TEST(grapheme_clusters, sample1) {
   char utf8_chars[] = u8"\u000D\u000A\u0061\u000A\u0308";
   auc::u8text utf8_text(utf8_chars);
@@ -158,85 +160,85 @@ TEST(grapheme_clusters, sample8) {
                      {auc::codepoint{0x0062u}}});
 }
 
- TEST(grapheme_clusters, sample9) {
-   char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\U0001F1E8\u0062";
-   auc::u8text utf8_text(utf8_chars);
+TEST(grapheme_clusters, sample9) {
+  char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\U0001F1E8\u0062";
+  auc::u8text utf8_text(utf8_chars);
 
-   const std::vector<auc::graphemecluster> clusters =
-       utf8_text.get_grapheme_clusters();
-   ASSERT_EQ(4u, clusters.size());
-   validate_clusters(clusters,
-                     {{auc::codepoint{0x0061u}},
-                      {auc::codepoint{0x1F1E6u}, auc::codepoint{0x1F1E7u}},
-                      {auc::codepoint{0x1F1E8u}},
-                      {auc::codepoint{0x0062u}}});
- }
+  const std::vector<auc::graphemecluster> clusters =
+      utf8_text.get_grapheme_clusters();
+  ASSERT_EQ(4u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x0061u}},
+                     {auc::codepoint{0x1F1E6u}, auc::codepoint{0x1F1E7u}},
+                     {auc::codepoint{0x1F1E8u}},
+                     {auc::codepoint{0x0062u}}});
+}
 
- TEST(grapheme_clusters, sample10) {
-   char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\u200D\U0001F1E8\u0062";
-   auc::u8text utf8_text(utf8_chars);
+TEST(grapheme_clusters, sample10) {
+  char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\u200D\U0001F1E8\u0062";
+  auc::u8text utf8_text(utf8_chars);
 
-   const std::vector<auc::graphemecluster> clusters =
-       utf8_text.get_grapheme_clusters();
-   ASSERT_EQ(4u, clusters.size());
-   validate_clusters(clusters,
-                     {{auc::codepoint{0x0061u}},
-                      {auc::codepoint{0x1F1E6u}, auc::codepoint{0x1F1E7u},
-                       auc::codepoint{0x200Du}},
-                      {auc::codepoint{0x1F1E8u}},
-                      {auc::codepoint{0x0062u}}});
- }
+  const std::vector<auc::graphemecluster> clusters =
+      utf8_text.get_grapheme_clusters();
+  ASSERT_EQ(4u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x0061u}},
+                     {auc::codepoint{0x1F1E6u}, auc::codepoint{0x1F1E7u},
+                      auc::codepoint{0x200Du}},
+                     {auc::codepoint{0x1F1E8u}},
+                     {auc::codepoint{0x0062u}}});
+}
 
- TEST(grapheme_clusters, sample11) {
-   char utf8_chars[] = u8"\u0061\U0001F1E6\u200D\U0001F1E7\U0001F1E8\u0062";
-   auc::u8text utf8_text(utf8_chars);
+TEST(grapheme_clusters, sample11) {
+  char utf8_chars[] = u8"\u0061\U0001F1E6\u200D\U0001F1E7\U0001F1E8\u0062";
+  auc::u8text utf8_text(utf8_chars);
 
-   const std::vector<auc::graphemecluster> clusters =
-       utf8_text.get_grapheme_clusters();
-   ASSERT_EQ(4u, clusters.size());
-   validate_clusters(clusters,
-                     {{auc::codepoint{0x0061u}},
-                      {auc::codepoint{0x1F1E6u}, auc::codepoint{0x200Du}},
-                      {auc::codepoint{0x1F1E7u}, auc::codepoint{0x1F1E8u}},
-                      {auc::codepoint{0x0062u}}});
- }
+  const std::vector<auc::graphemecluster> clusters =
+      utf8_text.get_grapheme_clusters();
+  ASSERT_EQ(4u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x0061u}},
+                     {auc::codepoint{0x1F1E6u}, auc::codepoint{0x200Du}},
+                     {auc::codepoint{0x1F1E7u}, auc::codepoint{0x1F1E8u}},
+                     {auc::codepoint{0x0062u}}});
+}
 
- TEST(grapheme_clusters, sample12) {
-   char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\U0001F1E8\U0001F1E9\u0062";
-   auc::u8text utf8_text(utf8_chars);
+TEST(grapheme_clusters, sample12) {
+  char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\U0001F1E8\U0001F1E9\u0062";
+  auc::u8text utf8_text(utf8_chars);
 
-   const std::vector<auc::graphemecluster> clusters =
-       utf8_text.get_grapheme_clusters();
-   ASSERT_EQ(4u, clusters.size());
-   validate_clusters(clusters,
-                     {{auc::codepoint{0x0061u}},
-                      {auc::codepoint{0x1F1E6u}, auc::codepoint{0x1F1E7u}},
-                      {auc::codepoint{0x1F1E8u}, auc::codepoint{0x1F1E9u}},
-                      {auc::codepoint{0x0062u}}});
- }
+  const std::vector<auc::graphemecluster> clusters =
+      utf8_text.get_grapheme_clusters();
+  ASSERT_EQ(4u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x0061u}},
+                     {auc::codepoint{0x1F1E6u}, auc::codepoint{0x1F1E7u}},
+                     {auc::codepoint{0x1F1E8u}, auc::codepoint{0x1F1E9u}},
+                     {auc::codepoint{0x0062u}}});
+}
 
- TEST(grapheme_clusters, sample13) {
-   char utf8_chars[] = u8"\u0061\u200D";
-   auc::u8text utf8_text(utf8_chars);
+TEST(grapheme_clusters, sample13) {
+  char utf8_chars[] = u8"\u0061\u200D";
+  auc::u8text utf8_text(utf8_chars);
 
-   const std::vector<auc::graphemecluster> clusters =
-       utf8_text.get_grapheme_clusters();
-   ASSERT_EQ(1u, clusters.size());
-   validate_clusters(clusters,
-                     {{auc::codepoint{0x0061u}, auc::codepoint{0x200Du}}});
- }
+  const std::vector<auc::graphemecluster> clusters =
+      utf8_text.get_grapheme_clusters();
+  ASSERT_EQ(1u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x0061u}, auc::codepoint{0x200Du}}});
+}
 
- TEST(grapheme_clusters, sample14) {
-   char utf8_chars[] = u8"\u0061\u0308\u0062";
-   auc::u8text utf8_text(utf8_chars);
+TEST(grapheme_clusters, sample14) {
+  char utf8_chars[] = u8"\u0061\u0308\u0062";
+  auc::u8text utf8_text(utf8_chars);
 
-   const std::vector<auc::graphemecluster> clusters =
-       utf8_text.get_grapheme_clusters();
-   ASSERT_EQ(2u, clusters.size());
-   validate_clusters(clusters,
-                     {{auc::codepoint{0x0061u}, auc::codepoint{0x0308u}},
-                      {auc::codepoint{0x0062u}}});
- }
+  const std::vector<auc::graphemecluster> clusters =
+      utf8_text.get_grapheme_clusters();
+  ASSERT_EQ(2u, clusters.size());
+  validate_clusters(clusters,
+                    {{auc::codepoint{0x0061u}, auc::codepoint{0x0308u}},
+                     {auc::codepoint{0x0062u}}});
+}
 
 TEST(grapheme_clusters, sample15) {
   char utf8_chars[] = u8"\u0061\u0903\u0062";
