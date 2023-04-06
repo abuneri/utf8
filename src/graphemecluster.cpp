@@ -1,5 +1,3 @@
-#include "graphemebreakproperty_lookup.hpp"
-
 #include <auc/graphemecluster.hpp>
 
 #include <tuple>
