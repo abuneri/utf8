@@ -1,6 +1,7 @@
-#include <auc/graphemecluster.hpp>
-#include "graphemebreakproperty_lookup.hpp"
 #include "emojiproperty_lookup.hpp"
+#include "graphemebreakproperty_lookup.hpp"
+
+#include <auc/graphemecluster.hpp>
 
 #include <tuple>
 #include <algorithm>
@@ -27,37 +28,37 @@ std::vector<grapheme_cluster_break> get_char_breaks(
   return breaks;
 }
 
-bool has_break(const std::vector<u8char>& current_cluster,
-               const grapheme_cluster_break& previous,
-               const grapheme_cluster_break& current) {
-  auto contains_prop = [](const std::vector<property>& props, property prop) {
-    return (std::find(props.begin(), props.end(), prop) != props.end());
-  };
+bool contains_prop(const std::vector<property>& props, property prop) {
+  return (std::find(props.begin(), props.end(), prop) != props.end());
+};
 
-  // TODO: use for GB11
-  auto is_extpict_prop = [](const codepoint& cp) {
-    auto itr = codepoint_emoji_lookup.find(cp);
-    if (itr != codepoint_emoji_lookup.end()) {
-      return (itr->second == property::Ext_Pict);
+// TODO: use for GB11
+bool is_extpict_prop(const codepoint& cp) {
+  auto itr = codepoint_emoji_lookup.find(cp);
+  if (itr != codepoint_emoji_lookup.end()) {
+    return (itr->second == property::Ext_Pict);
+  }
+  return false;
+};
+
+int num_current_regind_props(const std::vector<u8char>& current_cluster) {
+  auto is_regind_prop = [](const codepoint& cp) {
+    auto itr = codepoint_break_lookup.find(cp.get_num());
+    if (itr != codepoint_break_lookup.end()) {
+      return (itr->second.prop_ == property::RI);
     }
     return false;
   };
+  return std::count_if(current_cluster.begin(), current_cluster.end(),
+                       [&is_regind_prop](const u8char& c) {
+                         return is_regind_prop(c.get_codepoint());
+                       });
+};
 
-  auto num_current_regind_props = [&current_cluster]() {
-    auto is_regind_prop = [](const codepoint& cp) {
-      auto itr = codepoint_break_lookup.find(cp.get_num());
-      if (itr != codepoint_break_lookup.end()) {
-        return (itr->second.prop_ == property::RI);
-      }
-      return false;
-    };
-    return std::count_if(current_cluster.begin(), current_cluster.end(),
-                         [&is_regind_prop](const u8char& c) {
-                           return is_regind_prop(c.get_codepoint());
-                         });
-  };
-
-  // https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
+// https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
+bool has_break(const std::vector<u8char>& current_cluster,
+               const grapheme_cluster_break& previous,
+               const grapheme_cluster_break& current) {
   // Break at the start and end of text, unless the text is empty.
   // GB1/GB2 are handled implicitly
 
@@ -116,7 +117,7 @@ bool has_break(const std::vector<u8char>& current_cluster,
   // before the break point.
   else if (previous.prop_ == property::RI && current.prop_ == property::RI) {
     // GB12 and GB13
-    return !(num_current_regind_props() <= 1);
+    return !(num_current_regind_props(current_cluster) <= 1);
   }
   // Otherwise, break everywhere.
   else {
