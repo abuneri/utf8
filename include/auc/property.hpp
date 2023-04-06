@@ -1,7 +1,6 @@
 #pragma once
 
 namespace auc {
-namespace detail {
 
 enum class property : int {
   Other = 0,
@@ -26,5 +25,4 @@ enum class property : int {
   Ext_Pict = 19
 };
 
-}  // namespace detail
 }  // namespace auc

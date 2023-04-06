@@ -5,7 +5,7 @@
 
 #include <auc/codepoint.hpp>
 
-#include "property.hpp"
+#include <auc/property.hpp>
 
 // https://www.unicode.org/Public/15.0.0/ucd/emoji/emoji-data.txt
 namespace auc {

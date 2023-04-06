@@ -14,16 +14,12 @@ def get_cpp_unordermap_data(props):
         '#pragma once\n\n' \
         '#include <unordered_map>\n\n' \
         '#include <auc/codepoint.hpp>\n\n' \
-        '#include "property.hpp"\n\n' \
+        '#include <auc/property.hpp>\n\n' \
         '// https://www.unicode.org/' \
         'Public/15.0.0/ucd/auxiliary/GraphemeBreakProperty.txt\n'\
         'namespace auc {\n' \
         'namespace detail {\n\n' \
-        'struct grapheme_cluster_break {\n' \
-        '   codepoint codepoint_{0};\n'\
-        '   property prop_{property::Other};\n' \
-        '};\n\n' \
-        'static std::unordered_map<std::uint32_t, grapheme_cluster_break> ' \
+        'static std::unordered_map<codepoint, property> ' \
         'codepoint_break_lookup = {\n'
 
     header_data = ''
@@ -31,7 +27,7 @@ def get_cpp_unordermap_data(props):
     for prop_idx in range(num_props):
         prop = props[prop_idx]
         header_data += \
-            f'  {{{prop.codepoint}u, {{{prop.codepoint}u, {prop.prop_type}}}}}'
+            f'  {{codepoint{{{prop.codepoint}u}}, {prop.prop_type}}}'
         if prop_idx < num_props - 1:
             header_data += ',\n'
 

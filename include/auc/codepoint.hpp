@@ -1,6 +1,9 @@
 #pragma once
 
+#include "property.hpp"
+
 #include <cstdint>
+#include <functional>
 
 namespace auc {
 
@@ -9,6 +12,8 @@ class codepoint {
   codepoint(std::uint32_t num) : num_(num) {}
 
   std::uint32_t get_num() const { return num_; }
+
+  property get_property() const;
 
   // TODO: Add helper to convert to a hex string representation (maybe also with
   // U+ prefix?)

@@ -14,7 +14,7 @@ def get_cpp_unordermap_data(props):
         '#pragma once\n\n' \
         '#include <unordered_map>\n\n' \
         '#include <auc/codepoint.hpp>\n\n' \
-        '#include "property.hpp"\n\n' \
+        '#include <auc/property.hpp>\n\n' \
         '// https://www.unicode.org/' \
         'Public/15.0.0/ucd/emoji/emoji-data.txt\n'\
         'namespace auc {\n' \
