@@ -17,11 +17,14 @@ std::vector<grapheme_cluster_break> get_char_breaks(
   for (const auto& c : chars) {
     const std::uint32_t cp = c.get_codepoint().get_num();
 
-    if (codepoint_break_lookup.find(cp) == codepoint_break_lookup.end()) {
-      breaks.push_back(
-          grapheme_cluster_break{c.get_codepoint(), property::Other});
+    if (auto prop_itr = codepoint_break_lookup.find(cp);
+        prop_itr != codepoint_break_lookup.end()) {
+      breaks.push_back(prop_itr->second);
+    } else if (auto emoji_prop_itr = codepoint_emoji_lookup.find(cp);
+               emoji_prop_itr != codepoint_emoji_lookup.end()) {
+      breaks.push_back({emoji_prop_itr->first, emoji_prop_itr->second});
     } else {
-      breaks.push_back(codepoint_break_lookup[cp]);
+      breaks.push_back({c.get_codepoint(), property::Other});
     }
   }
 
@@ -30,15 +33,6 @@ std::vector<grapheme_cluster_break> get_char_breaks(
 
 bool contains_prop(const std::vector<property>& props, property prop) {
   return (std::find(props.begin(), props.end(), prop) != props.end());
-};
-
-// TODO: use for GB11
-bool is_extpict_prop(const codepoint& cp) {
-  auto itr = codepoint_emoji_lookup.find(cp);
-  if (itr != codepoint_emoji_lookup.end()) {
-    return (itr->second == property::Ext_Pict);
-  }
-  return false;
 };
 
 int num_current_regind_props(const std::vector<u8char>& current_cluster) {
@@ -108,9 +102,8 @@ bool has_break(const std::vector<u8char>& current_cluster,
     // GB9b
     return false;
   }
-  // TODO: Support these rules once we parse emoji data to include ExtPict break
-  // property in our lookup table Do not break within emoji modifier sequences
-  // or emoji zwj sequences. GB11
+  // TODO: Do not break within emoji modifier sequences or emoji zwj sequences.
+  // GB11
 
   // Do not break within emoji flag sequences. That is, do not break between
   // regional indicator (RI) symbols if there is an odd number of RI characters
