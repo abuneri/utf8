@@ -127,7 +127,8 @@ std::vector<graphemecluster> build_grapheme_clusters(
       cluster.clear();
     }
     if (current_codepoint_idx + 1u == chars.size()) {
-      grapheme_clusters.push_back(graphemecluster{{chars.back()}});
+      cluster.push_back(chars.back());
+      grapheme_clusters.push_back(graphemecluster{cluster});
     }
   }
 
