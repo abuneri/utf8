@@ -13,7 +13,7 @@
 namespace auc {
 namespace detail {
 
-static std::unordered_map<codepoint, std::vector<property>> codepoint_emoji_lookup = {
+std::unordered_map<codepoint, std::vector<property>> codepoint_emoji_lookup = {
   {codepoint{42u}, {property::Emoji, property::Emoji_Comp}},
   {codepoint{48u}, {property::Emoji, property::Emoji_Comp}},
   {codepoint{49u}, {property::Emoji, property::Emoji_Comp}},

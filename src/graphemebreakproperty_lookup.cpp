@@ -11,7 +11,7 @@
 namespace auc {
 namespace detail {
 
-static std::unordered_map<codepoint, property> codepoint_break_lookup = {
+std::unordered_map<codepoint, property> codepoint_break_lookup = {
   {codepoint{1536u}, property::Prepend},
   {codepoint{1537u}, property::Prepend},
   {codepoint{1538u}, property::Prepend},

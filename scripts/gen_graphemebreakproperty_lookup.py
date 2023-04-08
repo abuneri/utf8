@@ -19,7 +19,7 @@ def get_cpp_unordermap_data(props):
         'Public/15.0.0/ucd/auxiliary/GraphemeBreakProperty.txt\n'\
         'namespace auc {\n' \
         'namespace detail {\n\n' \
-        'static std::unordered_map<codepoint, property> ' \
+        'std::unordered_map<codepoint, property> ' \
         'codepoint_break_lookup = {\n'
 
     header_data = ''
@@ -42,5 +42,5 @@ def get_cpp_unordermap_data(props):
 cpp_header = get_cpp_unordermap_data(
     get_properties('GraphemeBreakProperty.txt', GraphemeBreakProperty)
 )
-with open('../src/graphemebreakproperty_lookup.hpp', 'w') as gen_header_file:
+with open('../src/graphemebreakproperty_lookup.cpp', 'w') as gen_header_file:
     gen_header_file.write(cpp_header)

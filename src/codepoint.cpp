@@ -1,11 +1,14 @@
 #include <auc/codepoint.hpp>
 
-#include "emojiproperty_lookup.hpp"
-#include "graphemebreakproperty_lookup.hpp"
-
 namespace auc {
 
-namespace detail {}  // namespace detail
+namespace detail {
+
+extern std::unordered_map<codepoint, property> codepoint_break_lookup;
+extern std::unordered_map<codepoint, std::vector<property>>
+    codepoint_emoji_lookup;
+
+}  // namespace detail
 
 property codepoint::get_property() const {
   if (auto prop_itr = detail::codepoint_break_lookup.find(*this);
