@@ -44,7 +44,7 @@ def codepoint_range(codepoint):
 
 
 def get_properties(ucd_file, Property):
-    props = []
+    props = {}
     with open(ucd_file, 'r', encoding='utf-8') as gpb_file:
         lines = gpb_file.readlines()
         for line in lines:
@@ -65,6 +65,11 @@ def get_properties(ucd_file, Property):
 
             prop_type = second_section[0].strip()
             for cp in codepoints:
-                props.append(Property(cp, prop_type))
+                if cp in props.keys():
+                    prop = props[cp]
+                    if hasattr(prop, 'append'):
+                        prop.append(prop_type)
+                else:
+                    props[cp] = Property(cp, prop_type)
 
-    return props
+    return list(props.values())

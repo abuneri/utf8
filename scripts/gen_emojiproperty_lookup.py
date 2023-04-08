@@ -4,7 +4,11 @@ from ucd_parsing_utils import get_properties, PROP_CPP_CONV
 class EmojiProperty:
     def __init__(self, codepoint, prop_type):
         self.codepoint = codepoint
-        self.prop_type = PROP_CPP_CONV[prop_type]
+        # Emoji's can have more than one property (e.g. both Emoji and Extended_Pictographic)
+        self.prop_types = [PROP_CPP_CONV[prop_type]]
+
+    def append(self, prop_type):
+        self.prop_types.append(PROP_CPP_CONV[prop_type])
 
 
 def get_cpp_unordermap_data(props):
@@ -13,21 +17,28 @@ def get_cpp_unordermap_data(props):
         'scripts/gen_emojiproperty_lookup.py\n' \
         '#pragma once\n\n' \
         '#include <unordered_map>\n\n' \
+        '#include <vector>\n\n' \
         '#include <auc/codepoint.hpp>\n\n' \
         '#include <auc/property.hpp>\n\n' \
         '// https://www.unicode.org/' \
         'Public/15.0.0/ucd/emoji/emoji-data.txt\n'\
         'namespace auc {\n' \
         'namespace detail {\n\n' \
-        'static std::unordered_map<codepoint, property> ' \
+        'static std::unordered_map<codepoint, std::vector<property>> ' \
         'codepoint_emoji_lookup = {\n'
 
     header_data = ''
     num_props = len(props)
     for prop_idx in range(num_props):
         prop = props[prop_idx]
+        num_data = len(prop.prop_types)
+        props_data = ''
+        for data_idx in range(num_data):
+            props_data += prop.prop_types[data_idx]
+            if data_idx < num_data - 1:
+                props_data += ', '
         header_data += \
-            f'  {{codepoint{{{prop.codepoint}u}}, {prop.prop_type}}}'
+            f'  {{codepoint{{{prop.codepoint}u}}, {{{props_data}}}}}'
         if prop_idx < num_props - 1:
             header_data += ',\n'
 

@@ -18,6 +18,25 @@ int num_current_regind_props(const std::vector<u8char>& current_cluster) {
       });
 };
 
+property get_prop(const u8char& c) { return c.get_codepoint().get_property(); }
+
+bool is_emoji_sequence(const std::vector<u8char>& current_cluster) {
+  if (current_cluster.size() < 2u) {
+    return false;
+  }
+  bool is_seq = (get_prop(current_cluster.front()) == property::Ext_Pict) &&
+                (get_prop(current_cluster.back()) == property::ZWJ);
+
+  if (current_cluster.size() > 2u) {
+    for (std::size_t c_idx = 1u; c_idx < current_cluster.size() - 1u; ++c_idx) {
+      const u8char& c = current_cluster[c_idx];
+      is_seq &= (get_prop(c) == property::Extend);
+    }
+  }
+
+  return is_seq;
+}
+
 // https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
 bool has_break(const std::vector<u8char>& current_cluster,
                const codepoint& previous, const codepoint& current) {
@@ -73,9 +92,11 @@ bool has_break(const std::vector<u8char>& current_cluster,
     // GB9b
     return false;
   }
-  // TODO: Do not break within emoji modifier sequences or emoji zwj sequences.
-  // GB11
-
+  // Do not break within emoji modifier sequences or emoji zwj sequences.
+  else if (current_prop == property::Ext_Pict) {
+    // GB11
+    return !is_emoji_sequence(current_cluster);
+  }
   // Do not break within emoji flag sequences. That is, do not break between
   // regional indicator (RI) symbols if there is an odd number of RI characters
   // before the break point.
