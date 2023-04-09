@@ -47,7 +47,7 @@ class u8char {
 
   bool is_valid() const;
 
-  codepoint get_codepoint() const { return codepoint_; }
+  const codepoint& get_codepoint() const { return codepoint_; }
 
   std::size_t get_num_bytes() const { return encoded_storage_.size(); }
 

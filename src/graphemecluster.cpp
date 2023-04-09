@@ -7,30 +7,30 @@ namespace auc {
 
 namespace detail {
 
-bool contains_prop(const std::vector<property>& props, property prop) {
-  return (std::find(props.begin(), props.end(), prop) != props.end());
-};
+const property& get_prop(const u8char& c) {
+  return c.get_codepoint().get_property();
+}
 
 int num_current_regind_props(const std::vector<u8char>& current_cluster) {
-  return std::count_if(
-      current_cluster.begin(), current_cluster.end(), [](const u8char& c) {
-        return (c.get_codepoint().get_property() == property::RI);
-      });
+  return std::count_if(current_cluster.begin(), current_cluster.end(),
+                       [](const u8char& c) {
+                         return (get_prop(c).has_property(property::type::RI));
+                       });
 };
-
-property get_prop(const u8char& c) { return c.get_codepoint().get_property(); }
 
 bool is_emoji_sequence(const std::vector<u8char>& current_cluster) {
   if (current_cluster.size() < 2u) {
     return false;
   }
-  bool is_seq = (get_prop(current_cluster.front()) == property::Ext_Pict) &&
-                (get_prop(current_cluster.back()) == property::ZWJ);
+  bool is_seq =
+      (get_prop(current_cluster.front())
+           .has_property(property::type::Ext_Pict)) &&
+      (get_prop(current_cluster.back()).has_property(property::type::ZWJ));
 
   if (current_cluster.size() > 2u) {
     for (std::size_t c_idx = 1u; c_idx < current_cluster.size() - 1u; ++c_idx) {
       const u8char& c = current_cluster[c_idx];
-      is_seq &= (get_prop(c) == property::Extend);
+      is_seq &= (get_prop(c).has_property(property::type::Extend));
     }
   }
 
@@ -40,44 +40,51 @@ bool is_emoji_sequence(const std::vector<u8char>& current_cluster) {
 // https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
 bool has_break(const std::vector<u8char>& current_cluster,
                const codepoint& previous, const codepoint& current) {
-  const property previous_prop = previous.get_property();
-  const property current_prop = current.get_property();
+  const property& previous_prop = previous.get_property();
+  const property& current_prop = current.get_property();
 
   // Break at the start and end of text, unless the text is empty.
   // GB1/GB2 are handled implicitly
 
   // Do not break between a CR and LF. Otherwise, break before and after
   // controls.
-  if (previous_prop == property::CR && current_prop == property::LF) {
+  if (previous_prop.has_property(property::type::CR) &&
+      current_prop.has_property(property::type::LF)) {
     // GB3
     return false;
-  } else if (contains_prop({property::Control, property::CR, property::LF},
-                           previous_prop)) {
+  } else if (previous_prop.has_property({property::type::Control,
+                                         property::type::CR,
+                                         property::type::LF})) {
     // GB4
     return true;
-  } else if (contains_prop({property::Control, property::CR, property::LF},
-                           current_prop)) {
+  } else if (current_prop.has_property({property::type::Control,
+                                        property::type::CR,
+                                        property::type::LF})) {
     // GB5
     return true;
   }
   // Do not break Hangul syllable sequences.
-  else if (previous_prop == property::L &&
-           contains_prop(
-               {property::L, property::V, property::LV, property::LVT},
-               current_prop)) {
+  else if (previous_prop.has_property(property::type::L) &&
+           current_prop.has_property({property::type::L, property::type::V,
+                                      property::type::LV,
+                                      property::type::LVT})) {
     // GB6
     return false;
-  } else if (contains_prop({property::LV, property::V}, previous_prop) &&
-             contains_prop({property::V, property::T}, current_prop)) {
+  } else if (previous_prop.has_property(
+                 {property::type::LV, property::type::V}) &&
+             current_prop.has_property(
+                 {property::type::V, property::type::T})) {
     // GB7
     return false;
-  } else if (contains_prop({property::LVT, property::T}, previous_prop) &&
-             current_prop == property::T) {
+  } else if (previous_prop.has_property(
+                 {property::type::LVT, property::type::T}) &&
+             current_prop.has_property(property::type::T)) {
     // GB8
     return false;
   }
   // Do not break before extending characters or ZWJ.
-  else if (contains_prop({property::Extend, property::ZWJ}, current_prop)) {
+  else if (current_prop.has_property(
+               {property::type::Extend, property::type::ZWJ})) {
     // GB9
     return false;
   }
@@ -85,22 +92,23 @@ bool has_break(const std::vector<u8char>& current_cluster,
   // legacy grapheme clusters
 
   // Do not break before SpacingMarks, or after Prepend characters.
-  else if (current_prop == property::SpacingMark) {
+  else if (current_prop.has_property(property::type::SpacingMark)) {
     // GB9a
     return false;
-  } else if (previous_prop == property::Prepend) {
+  } else if (previous_prop.has_property(property::type::Prepend)) {
     // GB9b
     return false;
   }
   // Do not break within emoji modifier sequences or emoji zwj sequences.
-  else if (current_prop == property::Ext_Pict) {
+  else if (current_prop.has_property(property::type::Ext_Pict)) {
     // GB11
     return !is_emoji_sequence(current_cluster);
   }
   // Do not break within emoji flag sequences. That is, do not break between
   // regional indicator (RI) symbols if there is an odd number of RI characters
   // before the break point.
-  else if (previous_prop == property::RI && current_prop == property::RI) {
+  else if (previous_prop.has_property(property::type::RI) &&
+           current_prop.has_property(property::type::RI)) {
     // GB12 and GB13
     return !(num_current_regind_props(current_cluster) <= 1);
   }

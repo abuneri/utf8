@@ -17,13 +17,13 @@ def get_cpp_unordermap_data(props):
         'scripts/gen_emojiproperty_lookup.py\n' \
         '#include <unordered_map>\n' \
         '#include <vector>\n\n' \
-        '#include <auc/codepoint.hpp>\n' \
-        '#include <auc/property.hpp>\n\n' \
+        '#include <auc/property.hpp>\n' \
+        '#include <cstdint>\n\n' \
         '// https://www.unicode.org/' \
         'Public/15.0.0/ucd/emoji/emoji-data.txt\n'\
         'namespace auc {\n' \
         'namespace detail {\n\n' \
-        'std::unordered_map<codepoint, std::vector<property>> ' \
+        'static std::unordered_map<std::uint32_t, std::vector<property::type>> ' \
         'codepoint_emoji_lookup = {\n'
 
     header_data = ''
@@ -37,7 +37,7 @@ def get_cpp_unordermap_data(props):
             if data_idx < num_data - 1:
                 props_data += ', '
         header_data += \
-            f'  {{codepoint{{{prop.codepoint}u}}, {{{props_data}}}}}'
+            f'  {{{prop.codepoint}u, {{{props_data}}}}}'
         if prop_idx < num_props - 1:
             header_data += ',\n'
 
@@ -52,6 +52,6 @@ def get_cpp_unordermap_data(props):
 cpp_header = get_cpp_unordermap_data(
     get_properties('emoji-data.txt', EmojiProperty)
 )
-with open('../src/emojiproperty_lookup.cpp', 'w') as gen_header_file:
+with open('../src/emojiproperty_lookup.hpp', 'w') as gen_header_file:
     gen_header_file.write(cpp_header)
 

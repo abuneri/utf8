@@ -2,12 +2,13 @@ project('utf8', 'cpp', version: '0.1.0', default_options : 'cpp_std=c++17')
 
 lib_srcs = [
     'include/auc/property.hpp',
+    'src/property.cpp',
     'include/auc/codepoint.hpp',
     'src/codepoint.cpp',
     'include/auc/graphemecluster.hpp',
     'src/graphemecluster.cpp',
-    'src/graphemebreakproperty_lookup.cpp',
-    'src/emojiproperty_lookup.cpp',
+    'src/graphemebreakproperty_lookup.hpp',
+    'src/emojiproperty_lookup.hpp',
     'include/auc/u8char.hpp',
     'src/u8char.cpp',
     'include/auc/u8text.hpp',
