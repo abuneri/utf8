@@ -32,7 +32,6 @@ class property {
     Ext_Pict = 19
   };
 
-  property();
   property(std::uint32_t cp);
 
   bool has_property(property::type prop_type) const;

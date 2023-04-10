@@ -2,7 +2,6 @@
 #include "graphemebreakproperty_lookup.hpp"
 
 #include <auc/property.hpp>
-#include <auc/codepoint.hpp>
 
 #include <algorithm>
 
@@ -21,8 +20,6 @@ template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
 }  // namespace detail
-
-property::property() { prop_ = graphemebreak{property::type::Other}; }
 
 property::property(std::uint32_t cp) {
   if (auto prop_itr = detail::codepoint_break_lookup.find(cp);
