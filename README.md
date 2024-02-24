@@ -20,15 +20,56 @@ A simple UTF-8 encoded text type, mostly for learning purposes
     - https://www.unicode.org/reports/tr10/
     - https://www.unicode.org/reports/tr18/
 
-## Building (Meson)
-This project uses the [meson build generation system](https://mesonbuild.com/), which uses Ninja as a backend by default and works on Windows, macOS, and Linux platforms.
+## Installation
+### Build and install project
 
-### Ninja
-An example of how to build the project with the Ninja backend:
+```
+mkdir build
+cd build
 
-`meson setup [--reconfigure] --buildtype <type> <build-dir>`
+# Without tests
+cmake .. -DBUILD_TESTING=OFF
+cmake --build . --config Release
 
-### Visual Studio 2022
-An example of how to customize the backend to develop with MSVC via Microsoft's Visual Studio 2022:
+# With tests
+cmake ..
+cmake --build . --config Release
+ctest
 
-`meson setup [--reconfigure] --backend vs2022 --buildtype <type> <build-dir>`
+cmake --install . --config Release
+```
+
+### Include package in your own CMake projects
+
+```
+# Your projects CMakeLists.txt
+
+find_package(auc REQUIRED)
+
+# ... configure <your_target> ...
+
+target_link_libraries(<your_target>
+    auc
+)
+```
+
+
+## Example
+```cpp
+#include <auc/u8text.hpp>
+
+int main() {
+  auc::u8text text(u8"Ī咩鉼歺и(尤ۼñ>w");
+  if (text.is_valid()) {
+    for (const auc::codepoint& cp : text.get_codepoints()) {
+        // ... codepoint-wise operations ...
+    }
+
+    for (const auc::graphemecluster& gc : text.get_grapheme_clusters()) {
+        // ... grapheme cluster-wise operations ...
+    }
+  }
+}
+
+```
+

@@ -5,7 +5,7 @@
 #include <string>
 
 TEST(parse_bom, valid_utf8) {
-  std::ifstream bom_utf8_file("../test/bom.txt");
+  std::ifstream bom_utf8_file("../../test/bom.txt");
   ASSERT_TRUE(bom_utf8_file.is_open());
   std::string bytes;
   std::getline(bom_utf8_file, bytes);
