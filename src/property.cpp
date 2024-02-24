@@ -19,19 +19,23 @@ struct overloaded : Ts... {
 template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
+
+
 }  // namespace detail
 
-property::property(std::uint32_t cp) {
+property::property_t property::init_prop(std::uint32_t cp) {
   if (auto prop_itr = detail::codepoint_break_lookup.find(cp);
       prop_itr != detail::codepoint_break_lookup.end()) {
-    prop_ = graphemebreak{prop_itr->second};
+    return graphemebreak{prop_itr->second};
   } else if (auto emoji_prop_itr = detail::codepoint_emoji_lookup.find(cp);
              emoji_prop_itr != detail::codepoint_emoji_lookup.end()) {
-    prop_ = emoji{emoji_prop_itr->second};
+    return emoji{emoji_prop_itr->second};
   } else {
-    prop_ = graphemebreak{property::type::Other};
+    return graphemebreak{property::type::Other};
   }
 }
+
+property::property(std::uint32_t cp) : prop_(init_prop(cp)) {}
 
 bool property::has_property(property::type prop_type) const {
   bool has_prop = false;

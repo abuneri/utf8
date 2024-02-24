@@ -46,6 +46,8 @@ class property {
   };
   using property_t = std::variant<graphemebreak, emoji>;
 
+  property_t init_prop(std::uint32_t cp);
+
   property_t prop_;
 };
 

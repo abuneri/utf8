@@ -1,5 +1,6 @@
 #include <auc/u8char.hpp>
 #include <limits>
+#include <climits>
 
 namespace auc {
 namespace detail {
