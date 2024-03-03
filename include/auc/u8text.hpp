@@ -11,6 +11,7 @@ namespace auc {
 class u8text {
  public:
   explicit u8text(std::string_view bytes);
+  explicit u8text(std::u8string_view bytes);
 
   static u8text from_codepoints(const std::vector<codepoint>& cps);
 

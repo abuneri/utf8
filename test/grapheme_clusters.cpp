@@ -64,7 +64,7 @@ INSTANTIATE_TEST_SUITE_P(
 // https://www.unicode.org/Public/15.0.0/ucd/auxiliary/GraphemeBreakTest.html#samples
 //=========================================================================
 TEST(grapheme_clusters, sample1) {
-  char utf8_chars[] = u8"\u000D\u000A\u0061\u000A\u0308";
+  char8_t utf8_chars[] = u8"\u000D\u000A\u0061\u000A\u0308";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -78,7 +78,7 @@ TEST(grapheme_clusters, sample1) {
 }
 
 TEST(grapheme_clusters, sample2) {
-  char utf8_chars[] = u8"\u0061\u0308";
+  char8_t utf8_chars[] = u8"\u0061\u0308";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -89,7 +89,7 @@ TEST(grapheme_clusters, sample2) {
 }
 
 TEST(grapheme_clusters, sample3) {
-  char utf8_chars[] = u8"\u0020\u200D\u0646";
+  char8_t utf8_chars[] = u8"\u0020\u200D\u0646";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -101,7 +101,7 @@ TEST(grapheme_clusters, sample3) {
 }
 
 TEST(grapheme_clusters, sample4) {
-  char utf8_chars[] = u8"\u0646\u200D\u0020";
+  char8_t utf8_chars[] = u8"\u0646\u200D\u0020";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -113,7 +113,7 @@ TEST(grapheme_clusters, sample4) {
 }
 
 TEST(grapheme_clusters, sample5) {
-  char utf8_chars[] = u8"\u1100\u1100";
+  char8_t utf8_chars[] = u8"\u1100\u1100";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -124,7 +124,7 @@ TEST(grapheme_clusters, sample5) {
 }
 
 TEST(grapheme_clusters, sample6) {
-  char utf8_chars[] = u8"\uAC00\u11A8\u1100";
+  char8_t utf8_chars[] = u8"\uAC00\u11A8\u1100";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -136,7 +136,7 @@ TEST(grapheme_clusters, sample6) {
 }
 
 TEST(grapheme_clusters, sample7) {
-  char utf8_chars[] = u8"\uAC01\u11A8\u1100";
+  char8_t utf8_chars[] = u8"\uAC01\u11A8\u1100";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -148,7 +148,7 @@ TEST(grapheme_clusters, sample7) {
 }
 
 TEST(grapheme_clusters, sample8) {
-  char utf8_chars[] = u8"\U0001F1E6\U0001F1E7\U0001F1E8\u0062";
+  char8_t utf8_chars[] = u8"\U0001F1E6\U0001F1E7\U0001F1E8\u0062";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -161,7 +161,7 @@ TEST(grapheme_clusters, sample8) {
 }
 
 TEST(grapheme_clusters, sample9) {
-  char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\U0001F1E8\u0062";
+  char8_t utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\U0001F1E8\u0062";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -175,7 +175,7 @@ TEST(grapheme_clusters, sample9) {
 }
 
 TEST(grapheme_clusters, sample10) {
-  char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\u200D\U0001F1E8\u0062";
+  char8_t utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\u200D\U0001F1E8\u0062";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -190,7 +190,7 @@ TEST(grapheme_clusters, sample10) {
 }
 
 TEST(grapheme_clusters, sample11) {
-  char utf8_chars[] = u8"\u0061\U0001F1E6\u200D\U0001F1E7\U0001F1E8\u0062";
+  char8_t utf8_chars[] = u8"\u0061\U0001F1E6\u200D\U0001F1E7\U0001F1E8\u0062";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -204,7 +204,7 @@ TEST(grapheme_clusters, sample11) {
 }
 
 TEST(grapheme_clusters, sample12) {
-  char utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\U0001F1E8\U0001F1E9\u0062";
+  char8_t utf8_chars[] = u8"\u0061\U0001F1E6\U0001F1E7\U0001F1E8\U0001F1E9\u0062";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -218,7 +218,7 @@ TEST(grapheme_clusters, sample12) {
 }
 
 TEST(grapheme_clusters, sample13) {
-  char utf8_chars[] = u8"\u0061\u200D";
+  char8_t utf8_chars[] = u8"\u0061\u200D";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -229,7 +229,7 @@ TEST(grapheme_clusters, sample13) {
 }
 
 TEST(grapheme_clusters, sample14) {
-  char utf8_chars[] = u8"\u0061\u0308\u0062";
+  char8_t utf8_chars[] = u8"\u0061\u0308\u0062";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -241,7 +241,7 @@ TEST(grapheme_clusters, sample14) {
 }
 
 TEST(grapheme_clusters, sample15) {
-  char utf8_chars[] = u8"\u0061\u0903\u0062";
+  char8_t utf8_chars[] = u8"\u0061\u0903\u0062";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -253,7 +253,7 @@ TEST(grapheme_clusters, sample15) {
 }
 
  TEST(grapheme_clusters, sample16) {
-  char utf8_chars[] = u8"\u0061\u0600\u0062";
+  char8_t utf8_chars[] = u8"\u0061\u0600\u0062";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -265,7 +265,7 @@ TEST(grapheme_clusters, sample15) {
 }
 
  TEST(grapheme_clusters, sample17) {
-  char utf8_chars[] = u8"\U0001F476\U0001F3FF\U0001F476";
+  char8_t utf8_chars[] = u8"\U0001F476\U0001F3FF\U0001F476";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -277,7 +277,7 @@ TEST(grapheme_clusters, sample15) {
  }
 
  TEST(grapheme_clusters, sample18) {
-   char utf8_chars[] = u8"\u0061\U0001F3FF\U0001F476";
+   char8_t utf8_chars[] = u8"\u0061\U0001F3FF\U0001F476";
    auc::u8text utf8_text(utf8_chars);
 
    const std::vector<auc::graphemecluster> clusters =
@@ -289,7 +289,7 @@ TEST(grapheme_clusters, sample15) {
  }
 
  TEST(grapheme_clusters, sample19) {
-   char utf8_chars[] = u8"\u0061\U0001F3FF\U0001F476\u200D\U0001F6D1";
+   char8_t utf8_chars[] = u8"\u0061\U0001F3FF\U0001F476\u200D\U0001F6D1";
    auc::u8text utf8_text(utf8_chars);
 
    const std::vector<auc::graphemecluster> clusters =
@@ -302,7 +302,7 @@ TEST(grapheme_clusters, sample15) {
  }
 
  TEST(grapheme_clusters, sample20) {
-   char utf8_chars[] = u8"\U0001F476\U0001F3FF\u0308\u200D\U0001F476\U0001F3FF";
+   char8_t utf8_chars[] = u8"\U0001F476\U0001F3FF\u0308\u200D\U0001F476\U0001F3FF";
    auc::u8text utf8_text(utf8_chars);
 
    const std::vector<auc::graphemecluster> clusters =
@@ -315,7 +315,7 @@ TEST(grapheme_clusters, sample15) {
  }
 
  TEST(grapheme_clusters, sample21) {
-   char utf8_chars[] = u8"\U0001F6D1\u200D\U0001F6D1";
+   char8_t utf8_chars[] = u8"\U0001F6D1\u200D\U0001F6D1";
    auc::u8text utf8_text(utf8_chars);
 
    const std::vector<auc::graphemecluster> clusters =
@@ -327,7 +327,7 @@ TEST(grapheme_clusters, sample15) {
  }
 
  TEST(grapheme_clusters, sample22) {
-   char utf8_chars[] = u8"\u0061\u200D\U0001F6D1";
+   char8_t utf8_chars[] = u8"\u0061\u200D\U0001F6D1";
    auc::u8text utf8_text(utf8_chars);
 
    const std::vector<auc::graphemecluster> clusters =
@@ -339,7 +339,7 @@ TEST(grapheme_clusters, sample15) {
  }
 
  TEST(grapheme_clusters, sample23) {
-  char utf8_chars[] = u8"\u2701\u200D\u2701";
+  char8_t utf8_chars[] = u8"\u2701\u200D\u2701";
   auc::u8text utf8_text(utf8_chars);
 
   const std::vector<auc::graphemecluster> clusters =
@@ -351,7 +351,7 @@ TEST(grapheme_clusters, sample15) {
  }
 
  TEST(grapheme_clusters, sample24) {
-   char utf8_chars[] = u8"\u0061\u200D\u2701";
+   char8_t utf8_chars[] = u8"\u0061\u200D\u2701";
    auc::u8text utf8_text(utf8_chars);
 
    const std::vector<auc::graphemecluster> clusters =

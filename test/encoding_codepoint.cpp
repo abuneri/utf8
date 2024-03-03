@@ -8,6 +8,6 @@ TEST(encoding_codepoint, valid_utf8) {
                                     0x20AC, 0xD55C, 0x10348, 0x9FFFF});
 
   std::string raw_data = utf8_text.data();
-  char utf8_chars[] = u8"߿က$£ह€한𐍈򟿿";
+  const char* utf8_chars = reinterpret_cast<const char*>(u8"߿က$£ह€한𐍈򟿿");
   EXPECT_STREQ(utf8_chars, raw_data.data());
 }

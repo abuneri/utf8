@@ -37,6 +37,12 @@ u8text::u8text(std::string_view bytes) {
   grapheme_clusters_ = detail::build_grapheme_clusters(chars_);
 }
 
+// https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1423r2.html#reinterpret_cast
+// This shenangians needs to be done since the C++ Standard committee  decided
+// to make breaking changes to u8 string literals for C++20
+u8text::u8text(std::u8string_view bytes)
+    : u8text(std::string_view(reinterpret_cast<const char*>(bytes.data()))) {}
+
 u8text::u8text(const std::vector<u8char> chars) : chars_(chars) {
   grapheme_clusters_ = detail::build_grapheme_clusters(chars_);
 }
