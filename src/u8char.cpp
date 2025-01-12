@@ -1,11 +1,13 @@
 #include <auc/u8char.hpp>
-#include <limits>
 #include <climits>
+#include <limits>
 
 namespace auc {
 namespace detail {
 
-bool is_extended_ascii(const char c) { return ((c >> (CHAR_BIT - 1)) & 1); }
+bool is_extended_ascii(const char c) {
+  return ((c >> (CHAR_BIT - 1)) & 1);
+}
 
 bool is_sequence(const char c) {
   // https://www.rfc-editor.org/rfc/rfc3629#section-3
@@ -58,7 +60,8 @@ std::uint32_t to_codepoint(const std::vector<char>& encoded_bytes) {
       decode_bit(enc_byte_idx, enc_bit, cp_bit);
 
       // Guard against underflow
-      if (enc_bit == 0u || cp_bit == 0u) break;
+      if (enc_bit == 0u || cp_bit == 0u)
+        break;
     }
   };
 
@@ -323,7 +326,8 @@ u8char::u8char(std::string_view bytes) {
   }
 }
 
-u8char::u8char(codepoint cp, const std::vector<char>& encoded_bytes,
+u8char::u8char(codepoint cp,
+               const std::vector<char>& encoded_bytes,
                const bool valid_encoding)
     : codepoint_{cp},
       encoded_storage_(encoded_bytes),
@@ -343,6 +347,8 @@ u8char u8char::from_codepoint(codepoint cp) {
   return u8char(cp, encoded_bytes, valid);
 }
 
-bool u8char::is_valid() const { return valid_encoding_; }
+bool u8char::is_valid() const {
+  return valid_encoding_;
+}
 
 }  // namespace auc

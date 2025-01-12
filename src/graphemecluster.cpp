@@ -1,8 +1,8 @@
 #include <auc/graphemecluster.hpp>
 #include <auc/property.hpp>
 
-#include <tuple>
 #include <algorithm>
+#include <tuple>
 
 namespace auc {
 
@@ -40,7 +40,8 @@ bool is_emoji_sequence(const std::vector<u8char>& current_cluster) {
 
 // https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
 bool has_break(const std::vector<u8char>& current_cluster,
-               const codepoint& previous, const codepoint& current) {
+               const codepoint& previous,
+               const codepoint& current) {
   const auto previous_prop = property{previous.get_num()};
   const auto current_prop = property{current.get_num()};
 

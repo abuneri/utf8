@@ -11,6 +11,7 @@ TEST(parse_bom, valid_utf8) {
   std::getline(bom_utf8_file, bytes);
 
   auc::u8text bom_utf8(bytes);
-  const char* utf8_chars = reinterpret_cast<const char*>(u8"߿က$£ह€한𐍈򟿿");
+  const char* utf8_chars =
+      reinterpret_cast<const char*>(u8"߿က$£ह€한𐍈򟿿");
   EXPECT_STREQ(utf8_chars, bom_utf8.data().data());
 }

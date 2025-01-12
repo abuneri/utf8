@@ -38,7 +38,6 @@ std::vector<char> to_encoded_bytes(std::uint32_t codepoint);
 //   0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 class u8char {
  public:
-
   explicit u8char(const char byte);
 
   explicit u8char(std::string_view bytes);
@@ -56,7 +55,8 @@ class u8char {
   }
 
  private:
-  explicit u8char(codepoint cp, const std::vector<char>& encoded_bytes,
+  explicit u8char(codepoint cp,
+                  const std::vector<char>& encoded_bytes,
                   const bool valid_encoding);
 
   bool valid_encoding_{false};

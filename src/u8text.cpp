@@ -10,7 +10,8 @@ namespace detail {
 
 std::size_t parse_bom(const char* bytes, const std::size_t length) {
   //  https://www.rfc-editor.org/rfc/rfc3629#section-6
-  if (length < 3) return 0;
+  if (length < 3)
+    return 0;
 
   auto bom_seq = [&bytes](std::size_t idx) -> bool {
     return ((bytes[idx] & 0xEF) == 0xEF && (bytes[idx + 1u] & 0xBB) == 0xBB &&

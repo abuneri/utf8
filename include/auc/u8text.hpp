@@ -3,8 +3,8 @@
 #include <string>
 #include <string_view>
 
-#include "u8char.hpp"
 #include "graphemecluster.hpp"
+#include "u8char.hpp"
 
 namespace auc {
 

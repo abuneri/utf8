@@ -19,8 +19,6 @@ struct overloaded : Ts... {
 template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
-
-
 }  // namespace detail
 
 property::property_t property::init_prop(std::uint32_t cp) {

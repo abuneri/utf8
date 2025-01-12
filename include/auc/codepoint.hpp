@@ -21,4 +21,3 @@ inline bool operator==(const codepoint& c1, const codepoint& c2) {
 }
 
 }  // namespace auc
-
